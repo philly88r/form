@@ -672,7 +672,7 @@ ${cssContent}
             });
 
             // Define explicit order, falling back to discovered order
-            const explicitSectionOrder = ['Basic Info', 'Posts', 'Gates', 'Line Posts', 'Extra Options', 'Other'];
+            const explicitSectionOrder = ['Basic Info', 'Gates', 'Posts', 'Line Posts', 'Extra Options', 'Other'];
             const sortedSectionNames = Array.from(sectionNames).sort((a, b) => {
                 const indexA = explicitSectionOrder.indexOf(a);
                 const indexB = explicitSectionOrder.indexOf(b);
