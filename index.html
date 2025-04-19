@@ -351,6 +351,40 @@ ${cssContent}
             console.log('Download initiated.');
         }
 
+        function getSections() {
+            const sections = {};
+            const sectionOrderMap = {}; // To store the first encountered order for a section
+            const sectionNames = new Set(); // To get unique section names
+
+            // Process main questions and group titles
+            questions.forEach(question => {
+                const section = question.section || 'Other';
+                sectionNames.add(section);
+                if (!sections[section]) {
+                    sections[section] = [];
+                    // Store the order of the first item found for this section for sorting sections later
+                    sectionOrderMap[section] = question.order ?? 9999;
+                }
+                sections[section].push(question);
+            });
+
+            // Define explicit order, falling back to discovered order
+            const explicitSectionOrder = ['Basic Info', 'Posts', 'Gates', 'Line Posts', 'Extra Options', 'Other'];
+            const sortedSectionNames = Array.from(sectionNames).sort((a, b) => {
+                const indexA = explicitSectionOrder.indexOf(a);
+                const indexB = explicitSectionOrder.indexOf(b);
+
+                if (indexA !== -1 && indexB !== -1) return indexA - indexB; // Both explicitly ordered
+                if (indexA !== -1) return -1; // A is explicit, B is not
+                if (indexB !== -1) return 1; // B is explicit, A is not
+
+                // Neither is explicitly ordered, sort by the order of their first question
+                return (sectionOrderMap[a] ?? 9999) - (sectionOrderMap[b] ?? 9999);
+            });
+
+            return { sections, sortedSectionNames };
+        }
+
         function renderForm() {
             // Renders all form sections and questions dynamically
             const formSections = document.getElementById('formSections');
