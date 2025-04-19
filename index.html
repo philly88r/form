@@ -5,392 +5,66 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Chainlink Fence Calculator</title>
     <style>
-        /* Modern CSS Reset */
-        *, *::before, *::after {
-            box-sizing: border-box;
-        }
-        
-        /* Base Styles */
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            line-height: 1.6;
-            color: #333;
-            background-color: #f5f7fa;
-            margin: 0;
-            padding: 0;
-        }
-        
-        /* Container Styles */
-        .form-container {
-            max-width: 900px;
-            margin: 2rem auto;
-            padding: 2rem;
-            background-color: #fff;
-            border-radius: 12px;
-            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08);
-        }
-        
-        /* Title Styles */
-        .form-title {
-            color: #2c3e50;
-            text-align: center;
-            margin-bottom: 1.5rem;
-            font-size: 2.2rem;
-            font-weight: 600;
-            position: relative;
-            padding-bottom: 0.8rem;
-        }
-        
-        .form-title::after {
-            content: '';
-            position: absolute;
-            bottom: 0;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 100px;
-            height: 4px;
-            background: linear-gradient(to right, #3498db, #2ecc71);
-            border-radius: 2px;
-        }
-        
-        /* Section Styles */
-        .section-container {
-            margin-bottom: 2rem;
-            padding: 1.5rem;
-            background-color: #f8f9fa;
-            border-radius: 8px;
-            border-left: 5px solid #3498db;
-        }
-        
-        .section-title {
-            color: #2980b9;
-            margin-top: 0;
-            margin-bottom: 1rem;
-            font-size: 1.5rem;
-            font-weight: 600;
-        }
-        
-        /* Question Group Styles */
-        .question-group {
-            margin-bottom: 1.2rem;
-            padding: 1rem;
-            background-color: #fff;
-            border-radius: 6px;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
-            transition: all 0.3s ease;
-        }
-        
-        .question-group:hover {
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
-            transform: translateY(-2px);
-        }
-        
-        /* Label Styles */
-        .label {
-            display: block;
-            margin-bottom: 0.5rem;
-            font-weight: 500;
-            color: #34495e;
-        }
-        
-        .required-indicator {
-            color: #e74c3c;
-            margin-left: 0.25rem;
-        }
-        
-        /* Input Styles */
-        .input-field, .select-dropdown {
-            width: 100%;
-            padding: 0.8rem 1rem;
-            border: 1px solid #ddd;
-            border-radius: 6px;
-            font-size: 1rem;
-            transition: border-color 0.3s, box-shadow 0.3s;
-        }
-        
-        .input-field:focus, .select-dropdown:focus {
-            border-color: #3498db;
-            box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.2);
-            outline: none;
-        }
-        
-        .input-field.calculated-field {
-            background-color: #edf2f7;
-            color: #2c3e50;
-            font-weight: 600;
-            cursor: not-allowed;
-            border-left: 3px solid #2ecc71;
-        }
-        
-        /* Button Styles */
-        .admin-button, .submit-button {
-            padding: 0.8rem 1.5rem;
-            border: none;
-            border-radius: 6px;
-            font-size: 1rem;
-            font-weight: 500;
-            cursor: pointer;
-            transition: all 0.3s ease;
-        }
-        
-        .admin-button {
-            background-color: #3498db;
-            color: white;
-            margin-right: 0.5rem;
-        }
-        
-        .admin-button:hover {
-            background-color: #2980b9;
-            transform: translateY(-2px);
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-        }
-        
-        .admin-button.primary {
-            background-color: #3498db;
-        }
-        
-        .admin-button.success {
-            background-color: #2ecc71;
-        }
-        
-        .admin-button.success:hover {
-            background-color: #27ae60;
-        }
-        
-        .submit-button {
-            background-color: #2ecc71;
-            color: white;
-            width: 100%;
-            padding: 1rem;
-            font-size: 1.1rem;
-            margin-top: 1.5rem;
-        }
-        
-        .submit-button:hover {
-            background-color: #27ae60;
-            transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-        }
-        
-        /* Admin Panel Styles */
-        .admin-controls-container {
-            margin-bottom: 2rem;
-            padding: 1.5rem;
-            background-color: #f1f5f9;
-            border-radius: 8px;
-            border: 1px solid #e2e8f0;
-        }
-        
-        .admin-controls-title {
-            color: #2c3e50;
-            margin-top: 0;
-            margin-bottom: 1rem;
-            font-size: 1.3rem;
-        }
-        
-        .add-question-form {
-            background-color: white;
-            padding: 1.5rem;
-            border-radius: 8px;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
-            margin-top: 1rem;
-        }
-        
-        .question-form-field {
-            margin-bottom: 1rem;
-        }
-        
-        /* Action Button Styles */
-        .action-buttons-container {
-            white-space: nowrap;
-            margin-left: auto;
-            padding-left: 10px;
-            display: flex;
-            gap: 5px;
-        }
-        
-        .action-button {
-            background-color: #f8f9fa;
-            border: 1px solid #e2e8f0;
-            border-radius: 4px;
-            padding: 4px 8px;
-            font-size: 0.85rem;
-            cursor: pointer;
-            transition: all 0.2s ease;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-        }
-        
-        .action-button:hover:not(:disabled) {
-            background-color: #e9ecef;
-        }
-        
-        .action-button.edit {
-            color: #3498db;
-        }
-        
-        .action-button.delete {
-            color: #e74c3c;
-        }
-        
+        /* ... (keep all existing styles from the previous version) ... */
+
+        /* Add styles for arrow buttons */
         .action-button.move {
-            color: #7f8c8d;
-            font-size: 1.2em;
+            color: #6b7280; /* Neutral color */
+            font-size: 1.2em; /* Make arrows slightly larger */
             line-height: 1;
-            padding: 1px 4px;
+            padding: 1px 4px; /* Adjust padding */
             vertical-align: middle;
         }
-        
         .action-button.move:hover:not(:disabled) {
             background-color: #e5e7eb;
-            color: #2c3e50;
+            color: #374151;
         }
-        
         .action-button:disabled {
             opacity: 0.4;
             cursor: not-allowed;
         }
-        
-        /* Editable Label Styles */
-        .editable-label {
+        .action-buttons-container {
+            /* Ensure enough space for all buttons */
+            white-space: nowrap;
+             margin-left: auto; /* Push buttons to the right in flex container */
+             padding-left: 10px; /* Space between label/input and buttons */
+        }
+
+        /* Style for calculated fields */
+        .input-field.calculated-field {
+            background-color: #e5e7eb; /* Light gray background */
+            color: #4b5563; /* Darker text */
+            cursor: not-allowed;
+            font-weight: bold;
+        }
+
+         /* Ensure editable labels handle buttons correctly */
+         .editable-label {
             display: flex;
             align-items: center;
             margin-bottom: 8px;
-            flex-wrap: nowrap;
+            flex-wrap: nowrap; /* Prevent wrapping by default */
         }
-        
-        .editable-label > span:first-child,
-        .editable-label > label:first-child,
-        .editable-label > input:first-child {
-            flex-grow: 1;
-            margin-right: 5px;
-            min-width: 100px;
-        }
-        
-        /* Post Group Styles */
-        .post-group-container {
-            margin-bottom: 1.5rem;
-            padding: 1.2rem;
-            background-color: #f1f5f9;
-            border-radius: 8px;
-            border-left: 4px solid #9b59b6;
-        }
-        
-        .post-group-title {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            margin-bottom: 1rem;
-            color: #8e44ad;
-            font-weight: 600;
-        }
-        
-        .post-group-title .action-buttons-container {
-            margin-left: 10px;
-            flex-shrink: 0;
-        }
-        
-        .post-field-item {
-            margin-bottom: 0.8rem;
-            padding: 0.8rem;
-            background-color: white;
-            border-radius: 6px;
-            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
-        }
-        
-        .post-field-item .editable-label .action-buttons-container {
-            margin-left: 5px;
-        }
-        
-        /* Dynamic Fields Styles */
-        .dynamic-fields-container {
-            margin: 1rem 0;
-            padding: 1rem;
-            background-color: #edf2f7;
-            border-radius: 8px;
-            border-left: 4px solid #f39c12;
-        }
-        
-        .dynamic-fields-title {
-            color: #d35400;
-            margin-top: 0;
-            margin-bottom: 1rem;
-            font-size: 1.2rem;
-        }
-        
-        .dynamic-fields-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-            gap: 1rem;
-        }
-        
-        .dynamic-field-item {
-            padding: 0.8rem;
-            background-color: white;
-            border-radius: 6px;
-            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
-        }
-        
-        /* Gate Fields Styles */
-        .gate-fields-container {
-            margin: 1rem 0;
-            padding: 1rem;
-            background-color: #e8f4fd;
-            border-radius: 8px;
-            border-left: 4px solid #3498db;
-        }
-        
-        .gate-fields-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-            gap: 1rem;
-        }
-        
-        .gate-field-item {
-            padding: 0.8rem;
-            background-color: white;
-            border-radius: 6px;
-            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
-        }
-        
-        /* Responsive Design */
-        @media (max-width: 768px) {
-            .form-container {
-                padding: 1.5rem;
-                margin: 1rem;
-            }
-            
-            .dynamic-fields-grid,
-            .gate-fields-grid {
-                grid-template-columns: 1fr;
-            }
-            
-            .admin-buttons-row {
-                flex-direction: column;
-            }
-            
-            .admin-button {
-                margin-bottom: 0.5rem;
-                width: 100%;
-            }
-        }
-        
-        /* Animation Effects */
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-        
-        .section-container {
-            animation: fadeIn 0.5s ease-out;
-        }
-        
-        /* Add a subtle hover effect to all interactive elements */
-        .input-field:hover:not([disabled]), 
-        .select-dropdown:hover:not([disabled]) {
-            border-color: #bdc3c7;
-        }
+         .editable-label > span:first-child,
+         .editable-label > label:first-child,
+         .editable-label > input:first-child {
+             flex-grow: 1; /* Label/Input takes space */
+             margin-right: 5px; /* Minimal space before buttons */
+             min-width: 100px; /* Prevent label collapsing too much */
+         }
+         .post-group-title {
+              display: flex; /* Make title container flex */
+              align-items: center;
+              justify-content: space-between; /* Push buttons to the end */
+         }
+          .post-group-title .action-buttons-container {
+              margin-left: 10px; /* Space before buttons */
+              flex-shrink: 0; /* Prevent buttons shrinking */
+          }
+           .post-field-item .editable-label .action-buttons-container {
+               margin-left: 5px; /* Smaller margin for sub-field buttons */
+           }
+
     </style>
 </head>
 <body>
@@ -502,7 +176,1339 @@
 
 
     <script>
-        // ... (keep existing JavaScript code)
+        // --- Configuration ---
+        const initialChainlinkFenceQuestions = [
+            // --- Basic Info Section ---
+            {
+                id: 'numberOfPulls',
+                question_text: 'Number of Fence Pulls/Sections',
+                input_type: 'number',
+                default: '2',
+                required: true,
+                section: 'Basic Info',
+                order: 10,
+                dynamic_fields: {
+                    container_id_prefix: 'dynamic-pulls-',
+                    container_class: 'dynamic-fields-container',
+                    title: 'Fence Pull/Section Lengths',
+                    grid_class: 'dynamic-fields-grid',
+                    item_class: 'dynamic-field-item',
+                    template: {
+                        id_template: 'pull{n}Length',
+                        text_template: 'Length of Pull/Section {n} (ft)',
+                        input_type: 'number',
+                        placeholder: 'Enter length',
+                        required: true,
+                        style: { labelColor: '#1e40af', borderColor: '#3b82f6' }
+                    }
+                }
+            },
+            {
+                id: 'totalFootage',
+                question_text: 'Total Linear Length (ft)',
+                input_type: 'number',
+                required: true,
+                calculated: true, // Mark as calculated
+                section: 'Basic Info',
+                order: 20
+            },
+            {
+                id: 'fenceHeight',
+                question_text: 'Height of Fence (ft)',
+                input_type: 'number', // Changed to number
+                default: '4',
+                required: true,
+                section: 'Basic Info',
+                order: 30
+            },
+            {
+                id: 'commercialOrResidential',
+                question_text: 'Project Type',
+                input_type: 'select',
+                options: ['Commercial', 'Residential'],
+                default: 'Commercial',
+                required: true,
+                section: 'Basic Info',
+                order: 40
+            },
+            {
+                id: 'fenceMaterial',
+                question_text: 'Fence Material Color',
+                input_type: 'select',
+                options: ['Galv', 'Black'],
+                default: 'Galv',
+                required: true,
+                section: 'Basic Info',
+                order: 50
+            },
+            {
+                id: 'meshGauge',
+                question_text: 'Mesh Gauge/Type',
+                input_type: 'select',
+                options: ['Residential 11.5 gauge', 'Commercial 9 gauge', 'Residential 9 gauge', 'Commercial 8 gauge'],
+                // Note: Default might depend on Commercial/Residential selection in a more complex setup
+                default: 'Residential 11.5 gauge',
+                required: true,
+                section: 'Basic Info',
+                order: 60
+            },
+            {
+                id: 'meshFoldType',
+                question_text: 'Mesh Fold Type',
+                input_type: 'select',
+                options: ['KK', 'KT'],
+                default: 'KK',
+                required: true,
+                section: 'Basic Info',
+                order: 70
+            },
+
+            // --- Posts Section ---
+            {
+                id: 'useFlangedPosts',
+                question_text: 'Use Flanged Posts?',
+                input_type: 'select',
+                options: ['Yes', 'No'],
+                default: 'No',
+                required: true,
+                section: 'Posts',
+                order: 100
+            },
+            { // Terminal Posts Group
+                id: 'terminalPostGroup',
+                question_text: 'Terminal Posts',
+                is_post_group: true,
+                section: 'Posts',
+                order: 110,
+                post_group_questions: [
+                    { id: 'numTerminalPosts', question_text: 'Number of Posts', input_type: 'number', required: true, order: 1 },
+                    { id: 'terminalPostDiameter', question_text: 'Diameter', input_type: 'select', options: ['2 3/8', '2 7/8', '4', '6 5/8'], required: true, order: 2 },
+                    { id: 'terminalPostThickness', question_text: 'Thickness', input_type: 'select', options: ['SCH 40', 'Commercial SCH 40', 'Industrial SCH 40'], required: true, order: 3 },
+                    { id: 'terminalPostHoleDepth', question_text: 'Hole Depth (in)', input_type: 'number', required: true, order: 4 },
+                    { id: 'terminalPostHoleWidth', question_text: 'Hole Width (in)', input_type: 'number', required: true, order: 5 }
+                ]
+            },
+             { // Corner Posts Group
+                id: 'cornerPostGroup',
+                question_text: 'Corner Posts',
+                is_post_group: true,
+                section: 'Posts',
+                order: 120,
+                post_group_questions: [
+                    { id: 'numCornerPosts', question_text: 'Number of Posts', input_type: 'number', required: true, order: 1 },
+                    { id: 'cornerPostDiameter', question_text: 'Diameter', input_type: 'select', options: ['2 3/8', '2 7/8', '4', '6 5/8'], required: true, order: 2 },
+                    { id: 'cornerPostThickness', question_text: 'Thickness', input_type: 'select', options: ['SCH 40', 'Commercial SCH 40', 'Industrial SCH 40'], required: true, order: 3 },
+                    { id: 'cornerPostHoleDepth', question_text: 'Hole Depth (in)', input_type: 'number', required: true, order: 4 },
+                    { id: 'cornerPostHoleWidth', question_text: 'Hole Width (in)', input_type: 'number', required: true, order: 5 }
+                ]
+            },
+            { // Flanged Posts Centered Group
+                id: 'flangedPostCenteredGroup',
+                question_text: 'Flanged Posts - Centered',
+                is_post_group: true,
+                section: 'Posts',
+                order: 130,
+                dependent_on: 'useFlangedPosts', // Dependency
+                dependent_value: 'Yes',         // Dependency
+                post_group_questions: [
+                    { id: 'numFlangedPostsCentered', question_text: 'Number of Posts', input_type: 'number', required: true, order: 1 },
+                    { id: 'flangedPostCenteredDiameter', question_text: 'Diameter', input_type: 'select', options: ['2 3/8', '2 7/8', '4', '6 5/8'], required: true, order: 2 },
+                    { id: 'flangedPostCenteredThickness', question_text: 'Thickness', input_type: 'select', options: ['SCH 40', 'Commercial SCH 40', 'Industrial SCH 40'], required: true, order: 3 },
+                    { id: 'flangedPostCenteredHoleDepth', question_text: 'Hole Depth (in)', input_type: 'number', required: true, order: 4 },
+                    { id: 'flangedPostCenteredHoleWidth', question_text: 'Hole Width (in)', input_type: 'number', required: true, order: 5 }
+                ]
+            },
+            { // Flanged Posts Off Centered Group
+                id: 'flangedPostOffCenteredGroup',
+                question_text: 'Flanged Posts - Off Centered',
+                is_post_group: true,
+                section: 'Posts',
+                order: 140,
+                dependent_on: 'useFlangedPosts', // Dependency
+                dependent_value: 'Yes',         // Dependency
+                post_group_questions: [
+                    { id: 'numFlangedPostsOffCentered', question_text: 'Number of Posts', input_type: 'number', required: true, order: 1 },
+                    { id: 'flangedPostOffCenteredDiameter', question_text: 'Diameter', input_type: 'select', options: ['2 3/8', '2 7/8', '4', '6 5/8'], required: true, order: 2 },
+                    { id: 'flangedPostOffCenteredThickness', question_text: 'Thickness', input_type: 'select', options: ['SCH 40', 'Commercial SCH 40', 'Industrial SCH 40'], required: true, order: 3 },
+                    { id: 'flangedPostOffCenteredHoleDepth', question_text: 'Hole Depth (in)', input_type: 'number', required: true, order: 4 },
+                    { id: 'flangedPostOffCenteredHoleWidth', question_text: 'Hole Width (in)', input_type: 'number', required: true, order: 5 }
+                ]
+            },
+
+             // --- Gates Section ---
+            {
+                id: 'numberOfSingleGates',
+                question_text: 'Number of Single Gates',
+                input_type: 'number',
+                default: '0',
+                required: true,
+                section: 'Gates',
+                order: 200,
+                dynamic_fields: {
+                    type: 'gate', gate_type: 'single', container_id_prefix: 'gate-fields-single-',
+                    container_class: 'gate-fields-container', title_template: 'Single Gate {n} Specifications',
+                    grid_class: 'gate-fields-grid', item_class: 'gate-field-item',
+                    post_container_class: 'gate-posts-container', post_title_template: 'Gate {n} Post Details', post_grid_class: 'gate-fields-grid',
+                    template: {
+                        fields: [
+                            { id_template: 'singleGate{n}Width', text_template: 'Width (ft)', input_type: 'number', required: true, order: 1 },
+                            { id_template: 'singleGate{n}Height', text_template: 'Height (ft)', input_type: 'number', required: true, order: 2 },
+                            { id_template: 'singleGate{n}FrameType', text_template: 'Frame Type', input_type: 'select', options: ['1 5/8', '2'], required: true, order: 3 },
+                            { id_template: 'singleGate{n}LatchType', text_template: 'Latch Type', input_type: 'select', options: ['Fork', 'Fork Single', 'Industrial Swing'], required: true, order: 4 }
+                        ],
+                        post_fields: [
+                            { id_template: 'singleGate{n}PostDiameter', text_template: 'Post Diameter', input_type: 'select', options: ['2 3/8', '2 7/8', '4', '6 5/8'], required: true, order: 101 },
+                            { id_template: 'singleGate{n}PostThickness', text_template: 'Post Thickness', input_type: 'select', options: ['SCH 40', 'Commercial SCH 40', 'Industrial SCH 40'], required: true, order: 102 },
+                            { id_template: 'singleGate{n}PostHoleDepth', text_template: 'Post Hole Depth (in)', input_type: 'number', required: true, order: 103 },
+                            { id_template: 'singleGate{n}PostHoleWidth', text_template: 'Post Hole Width (in)', input_type: 'number', required: true, order: 104 }
+                        ],
+                        style: { labelColor: '#047857', borderColor: '#10b981', postLabelColor: '#3f6212', postBorderColor: '#84cc16' }
+                    }
+                }
+            },
+             {
+                id: 'numberOfDoubleGates',
+                question_text: 'Number of Double Gates',
+                input_type: 'number',
+                default: '0',
+                required: true,
+                section: 'Gates',
+                order: 210,
+                dynamic_fields: {
+                    type: 'gate', gate_type: 'double', container_id_prefix: 'gate-fields-double-',
+                    container_class: 'gate-fields-container', title_template: 'Double Gate {n} Specifications',
+                    grid_class: 'gate-fields-grid', item_class: 'gate-field-item',
+                    post_container_class: 'gate-posts-container', post_title_template: 'Gate {n} Post Details', post_grid_class: 'gate-fields-grid',
+                     template: {
+                        fields: [
+                            { id_template: 'doubleGate{n}Width', text_template: 'Width (ft)', input_type: 'number', required: true, order: 1 },
+                            { id_template: 'doubleGate{n}Height', text_template: 'Height (ft)', input_type: 'number', required: true, order: 2 },
+                            { id_template: 'doubleGate{n}FrameType', text_template: 'Frame Type', input_type: 'select', options: ['1 5/8', '2'], required: true, order: 3 },
+                            { id_template: 'doubleGate{n}LatchType', text_template: 'Latch Type', input_type: 'select', options: ['Drop Rod', 'Cane Bolt'], required: true, order: 4 } // Different latch options
+                        ],
+                         post_fields: [
+                            { id_template: 'doubleGate{n}PostDiameter', text_template: 'Post Diameter', input_type: 'select', options: ['2 3/8', '2 7/8', '4', '6 5/8'], required: true, order: 101 },
+                            { id_template: 'doubleGate{n}PostThickness', text_template: 'Post Thickness', input_type: 'select', options: ['SCH 40', 'Commercial SCH 40', 'Industrial SCH 40'], required: true, order: 102 },
+                            { id_template: 'doubleGate{n}PostHoleDepth', text_template: 'Post Hole Depth (in)', input_type: 'number', required: true, order: 103 },
+                            { id_template: 'doubleGate{n}PostHoleWidth', text_template: 'Post Hole Width (in)', input_type: 'number', required: true, order: 104 }
+                        ],
+                         style: { labelColor: '#047857', borderColor: '#10b981', postLabelColor: '#3f6212', postBorderColor: '#84cc16' }
+                    }
+                }
+            },
+            {
+                id: 'numberOfSlidingGates',
+                question_text: 'Number of Sliding Gates',
+                input_type: 'number',
+                default: '0',
+                required: true,
+                section: 'Gates',
+                order: 220,
+                 dynamic_fields: {
+                    type: 'gate', gate_type: 'sliding', container_id_prefix: 'gate-fields-sliding-',
+                    container_class: 'gate-fields-container', title_template: 'Sliding Gate {n} Specifications',
+                    grid_class: 'gate-fields-grid', item_class: 'gate-field-item',
+                    post_container_class: 'gate-posts-container', post_title_template: 'Gate {n} Post Details', post_grid_class: 'gate-fields-grid',
+                     template: {
+                        fields: [
+                            { id_template: 'slidingGate{n}Width', text_template: 'Width (ft)', input_type: 'number', required: true, order: 1 },
+                            { id_template: 'slidingGate{n}Height', text_template: 'Height (ft)', input_type: 'number', required: true, order: 2 },
+                            { id_template: 'slidingGate{n}FrameType', text_template: 'Frame Type', input_type: 'select', options: ['1 5/8', '2'], required: true, order: 3 },
+                            { id_template: 'slidingGate{n}Operator', text_template: 'Operator', input_type: 'select', options: ['Manual', 'Automatic'], required: true, order: 4 } // Operator instead of latch
+                        ],
+                         post_fields: [
+                            { id_template: 'slidingGate{n}PostDiameter', text_template: 'Post Diameter', input_type: 'select', options: ['2 3/8', '2 7/8', '4', '6 5/8'], required: true, order: 101 },
+                            { id_template: 'slidingGate{n}PostThickness', text_template: 'Post Thickness', input_type: 'select', options: ['SCH 40', 'Commercial SCH 40', 'Industrial SCH 40'], required: true, order: 102 },
+                            { id_template: 'slidingGate{n}PostHoleDepth', text_template: 'Post Hole Depth (in)', input_type: 'number', required: true, order: 103 },
+                            { id_template: 'slidingGate{n}PostHoleWidth', text_template: 'Post Hole Width (in)', input_type: 'number', required: true, order: 104 }
+                        ],
+                         style: { labelColor: '#047857', borderColor: '#10b981', postLabelColor: '#3f6212', postBorderColor: '#84cc16' }
+                    }
+                }
+            },
+
+            // --- Line Posts Section ---
+             {
+                id: 'linePostSpacing',
+                question_text: 'Line Post Spacing (ft)',
+                input_type: 'number',
+                default: '10',
+                required: true,
+                section: 'Line Posts',
+                order: 300
+            },
+             { // Line Posts Group
+                id: 'linePostGroup',
+                question_text: 'Line Posts',
+                is_post_group: true,
+                section: 'Line Posts',
+                order: 310,
+                post_group_questions: [
+                    { id: 'numLinePosts', question_text: 'Number of Posts', input_type: 'number', required: true, calculated: true, order: 1 }, // Calculated
+                    { id: 'linePostDiameter', question_text: 'Diameter', input_type: 'select', options: ['1 5/8', '1 7/8', '2 3/8', '2 7/8'], required: true, order: 2 },
+                    { id: 'linePostThickness', question_text: 'Thickness', input_type: 'select', options: ['SCH 20', 'SCH 40', 'Commercial SCH 40'], required: true, order: 3 },
+                    { id: 'linePostHoleDepth', question_text: 'Hole Depth (in)', input_type: 'number', required: true, order: 4 },
+                    { id: 'linePostHoleWidth', question_text: 'Hole Width (in)', input_type: 'number', required: true, order: 5 }
+                ]
+            },
+
+            // --- Extra Options Section ---
+            {
+                id: 'includeTopRail',
+                question_text: 'Include Top Rail?',
+                input_type: 'select',
+                options: ['Yes', 'No'],
+                default: 'Yes',
+                required: true,
+                section: 'Extra Options',
+                order: 400
+            },
+            {
+                id: 'includeMidRail',
+                question_text: 'Include Mid Rail?',
+                input_type: 'select',
+                options: ['Yes', 'No'],
+                default: 'No',
+                required: true,
+                section: 'Extra Options',
+                order: 410
+            },
+             {
+                id: 'includeBottomRail',
+                question_text: 'Include Bottom Rail?',
+                input_type: 'select',
+                options: ['Yes', 'No'],
+                default: 'No',
+                required: true,
+                section: 'Extra Options',
+                order: 420
+            },
+            {
+                id: 'includeBarbedWire',
+                question_text: 'Include Barbed Wire?',
+                input_type: 'select',
+                options: ['Yes', 'No'],
+                default: 'No',
+                required: true,
+                section: 'Extra Options',
+                order: 430
+            },
+            {
+                id: 'numBarbedWireStrands',
+                question_text: 'Number of Barbed Wire Strands',
+                input_type: 'select',
+                options: ['1', '2', '3'],
+                default: '3',
+                required: true,
+                section: 'Extra Options',
+                order: 440,
+                dependent_on: 'includeBarbedWire', // Dependency
+                dependent_value: 'Yes'            // Dependency
+            },
+            {
+                id: 'includeTensionWire',
+                question_text: 'Include Tension Wire?',
+                input_type: 'select',
+                options: ['Yes', 'No'],
+                default: 'Yes',
+                required: true,
+                section: 'Extra Options',
+                order: 450
+            },
+            {
+                id: 'includePrivacySlats',
+                question_text: 'Include Privacy Slats?',
+                input_type: 'select',
+                options: ['Yes', 'No'],
+                default: 'No',
+                required: true,
+                section: 'Extra Options',
+                order: 460
+            },
+            {
+                id: 'privacySlatsType',
+                question_text: 'Privacy Slat Type',
+                input_type: 'select',
+                options: ['Standard', 'Heavy Duty', 'Extra Heavy Duty'],
+                default: 'Standard',
+                required: true,
+                section: 'Extra Options',
+                order: 470,
+                dependent_on: 'includePrivacySlats', // Dependency
+                dependent_value: 'Yes'              // Dependency
+            },
+            {
+                id: 'privacySlatsColor',
+                question_text: 'Privacy Slat Color',
+                input_type: 'select',
+                options: ['Black', 'Brown', 'Green', 'White', 'Beige'],
+                default: 'Black',
+                required: true,
+                section: 'Extra Options',
+                order: 480,
+                dependent_on: 'includePrivacySlats', // Dependency
+                dependent_value: 'Yes'              // Dependency
+            },
+        ];
+
+        // --- State Variables ---
+        let questions = JSON.parse(JSON.stringify(initialChainlinkFenceQuestions));
+        let isAdminMode = false;
+        let editingQuestionId = null;
+        let showAddQuestionForm = false;
+        let answers = {};
+        let dynamicFieldStructures = { pulls: [], singleGates: [], doubleGates: [], slidingGates: [] };
+
+        // --- Initialization ---
+        document.addEventListener('DOMContentLoaded', function() {
+            document.getElementById('toggleEditorMode').addEventListener('click', toggleEditorMode);
+            document.getElementById('toggleAddQuestionForm').addEventListener('click', toggleAddQuestionFormUI);
+            document.getElementById('addQuestionButton').addEventListener('click', handleAddQuestion);
+            document.getElementById('cancelAddQuestionButton').addEventListener('click', () => toggleAddQuestionFormUI(false));
+            document.getElementById('newQuestionInputType').addEventListener('change', toggleOptionsField);
+             document.getElementById('newQuestionCalculated').addEventListener('change', toggleCalculatedFieldOptions); // Add listener for calculated checkbox
+            document.getElementById('fenceCalculatorForm').addEventListener('submit', handleFormSubmit);
+            document.getElementById('downloadHtmlButton').addEventListener('click', downloadHtmlFile); // Add event listener for download button
+
+            initializeFormState();
+            renderForm();
+            recalculateAndUpdateFields(); // Perform initial calculation
+        });
+
+        // --- Core Functions ---
+
+        function initializeFormState() {
+            console.log('Initializing form state...');
+            answers = {};
+            dynamicFieldStructures = { pulls: [], singleGates: [], doubleGates: [], slidingGates: [] };
+
+            let maxOrder = 0;
+             const assignOrder = (item) => {
+                if (item.order === undefined || item.order === null) {
+                    item.order = 9999;
+                }
+                 if (!isNaN(item.order) && item.order > maxOrder) maxOrder = item.order;
+             };
+
+            questions.forEach(q => {
+                assignOrder(q);
+                 if (q.is_post_group && q.post_group_questions) {
+                     q.post_group_questions.forEach(assignOrder);
+                 }
+            });
+
+            questions.forEach(q => {
+                if (q.default !== undefined) {
+                    answers[q.id] = q.default;
+                }
+                if (q.dynamic_fields) {
+                    const count = parseInt(answers[q.id] || '0', 10);
+                    if (!isNaN(count) && count >= 0) { // Allow 0 count
+                        updateDynamicFields(q.id, count);
+                    }
+                }
+                 // Init answers for post group sub-questions
+                 if (q.is_post_group && q.post_group_questions) {
+                    q.post_group_questions.forEach(subQ => {
+                         if (subQ.default !== undefined) {
+                             answers[subQ.id] = subQ.default;
+                         }
+                     });
+                 }
+            });
+
+            // Recalculate after defaults are set
+             recalculateAndUpdateFields();
+            console.log('Initial answers:', answers);
+        }
+
+        function renderForm() {
+             console.log('Rendering form...');
+             const formSectionsContainer = document.getElementById('formSections');
+             formSectionsContainer.innerHTML = '';
+
+             const { sections, sortedSectionNames } = getSections();
+
+             sortedSectionNames.forEach(sectionName => {
+                 const sectionContainer = document.createElement('div');
+                 sectionContainer.className = 'section-container';
+                 sectionContainer.dataset.sectionName = sectionName; // Add section name data attribute
+
+                 const sectionTitle = document.createElement('h3');
+                 sectionTitle.className = 'section-title';
+                 sectionTitle.textContent = sectionName;
+                 sectionContainer.appendChild(sectionTitle);
+
+                 const sortedQuestions = sections[sectionName].sort((a, b) =>
+                     (a.order ?? 9999) - (b.order ?? 9999)
+                 );
+
+                 sortedQuestions.forEach((question, index) => {
+                     const questionElement = question.is_post_group
+                         ? renderPostGroup(question, sortedQuestions) // Pass section array context for moving group
+                         : renderQuestion(question, index, sortedQuestions.length, sortedQuestions);
+
+                     if (questionElement) {
+                         sectionContainer.appendChild(questionElement);
+                         if (question.dynamic_fields) {
+                             renderDynamicSection(question.id);
+                         }
+                     }
+                 });
+
+                 if (sectionContainer.querySelector('.question-group, .post-group-container')) {
+                     formSectionsContainer.appendChild(sectionContainer);
+                 }
+             });
+             console.log('Form rendered.');
+             // Update display of calculated fields after rendering
+             updateCalculatedFieldDisplay();
+        }
+
+        // --- Event Handlers ---
+
+        function handleChange(id, value) {
+            console.log(`Field changed: ${id} = ${value}`);
+            const previousValue = answers[id];
+            answers[id] = value;
+
+            const question = questions.find(q => q.id === id);
+            const dynamicField = getAllQuestionsIncludingDynamic().find(q => q.id === id && q.is_dynamic_part);
+            const postGroupField = getAllQuestionsIncludingDynamic().find(q => q.id === id && !q.is_dynamic_part && !questions.some(mainQ => mainQ.id === id));
+
+            // Trigger dynamic field update if needed
+            if (question && question.dynamic_fields) {
+                const count = parseInt(value, 10);
+                const previousCount = parseInt(previousValue || '0', 10);
+                 if (!isNaN(count) && count >= 0 && count !== previousCount) {
+                     updateDynamicFields(id, count);
+                     renderDynamicSection(id);
+                 } else if (isNaN(count)) {
+                     updateDynamicFields(id, 0);
+                     renderDynamicSection(id);
+                 }
+            }
+
+             // Check for dependencies and re-render if necessary
+             const affectsDependency = questions.some(q => q.dependent_on === id) ||
+                                     questions.some(q => q.is_post_group && q.dependent_on === id) ||
+                                     questions.some(q => q.is_post_group && q.post_group_questions?.some(subQ => subQ.dependent_on === id));
+
+             if (affectsDependency) {
+                 console.log(`Dependency triggered by ${id}. Re-rendering form.`);
+                 renderForm(); // Full re-render might be needed if sections appear/disappear
+             }
+
+             // --- Recalculate fields ---
+             const isPullLength = id.startsWith('pull') && id.endsWith('Length');
+             if (id === 'numberOfPulls' || isPullLength || id === 'linePostSpacing' || id === 'totalFootage') {
+                 recalculateAndUpdateFields();
+             } else {
+                 // Still update display for the changed field if it was calculated (though shouldn't happen often)
+                 updateCalculatedFieldDisplay(id);
+             }
+        }
+
+        // --- NEW --- Recalculates dependent fields and updates state + display
+         function recalculateAndUpdateFields() {
+            console.log('Recalculating fields...');
+            let needsUpdate = false;
+
+            // 1. Calculate totalFootage
+            let calculatedTotalFootage = 0;
+            const numPulls = parseInt(answers['numberOfPulls'] || '0', 10);
+            if (!isNaN(numPulls)) {
+                for (let i = 1; i <= numPulls; i++) {
+                     const pullLength = parseFloat(answers[`pull${i}Length`] || '0');
+                     if (!isNaN(pullLength)) {
+                         calculatedTotalFootage += pullLength;
+                     }
+                 }
+             }
+            // Update if changed
+            const currentTotalFootage = parseFloat(answers['totalFootage'] || '0');
+            if (isNaN(currentTotalFootage) || calculatedTotalFootage !== currentTotalFootage) {
+                answers['totalFootage'] = calculatedTotalFootage.toString(); // Store as string like other answers
+                 console.log(`Recalculated totalFootage: ${answers['totalFootage']}`);
+                needsUpdate = true;
+            }
+
+            // 2. Calculate numLinePosts
+            const totalFootageForLinePosts = parseFloat(answers['totalFootage'] || '0');
+            const linePostSpacing = parseFloat(answers['linePostSpacing'] || '10'); // Use default if not set
+            let calculatedNumLinePosts = 0;
+             if (!isNaN(totalFootageForLinePosts) && !isNaN(linePostSpacing) && linePostSpacing > 0 && totalFootageForLinePosts > 0) {
+                 // Basic calculation: posts needed for segments. Fence calculation can be complex (ends, gates).
+                 // This is a simplified version: number of segments = footage / spacing. Posts = segments - 1 (approx).
+                 // A more accurate formula might depend on exact layout, corners, terminals etc.
+                 // Example: (Total Length / Spacing) - 1 (for internal posts)
+                  calculatedNumLinePosts = Math.max(0, Math.floor(totalFootageForLinePosts / linePostSpacing) - 1); // Ensure non-negative
+             }
+             // Update if changed
+             const currentNumLinePosts = parseInt(answers['numLinePosts'] || '0', 10);
+              if (isNaN(currentNumLinePosts) || calculatedNumLinePosts !== currentNumLinePosts) {
+                  answers['numLinePosts'] = calculatedNumLinePosts.toString();
+                  console.log(`Recalculated numLinePosts: ${answers['numLinePosts']}`);
+                  needsUpdate = true;
+              }
+
+
+            // Update display if any calculation changed values
+             if (needsUpdate) {
+                 updateCalculatedFieldDisplay(); // Update all calculated fields in the DOM
+             }
+         }
+
+         // --- NEW --- Updates the value display of calculated fields in the DOM
+         function updateCalculatedFieldDisplay(specificId = null) {
+            const fieldsToUpdate = specificId
+                ? [specificId]
+                : getAllQuestionsIncludingDynamic().filter(q => q.calculated).map(q => q.id);
+
+             fieldsToUpdate.forEach(fieldId => {
+                 const element = document.querySelector(`[name="${fieldId}"]`);
+                 if (element && answers[fieldId] !== undefined) {
+                     console.log(`Updating display for calculated field ${fieldId} to ${answers[fieldId]}`);
+                     element.value = answers[fieldId];
+                 }
+             });
+         }
+
+
+        function handleFormSubmit(event) { /* ... (Keep existing validation logic) ... */
+             event.preventDefault();
+            console.log('Form submission initiated.');
+
+            const finalAnswers = { ...answers }; // Use current state
+
+            let firstMissingField = null;
+            const allQuestions = getAllQuestionsIncludingDynamic();
+            const missingRequiredFields = [];
+
+            allQuestions.forEach(q => {
+                // Check if field should be visible and required
+                let isVisible = true;
+                if (q.dependent_on && q.dependent_value) {
+                    if (answers[q.dependent_on] !== q.dependent_value) {
+                        isVisible = false;
+                    }
+                }
+                // Check for post group visibility based on dependency
+                const parentGroup = questions.find(group => group.is_post_group && group.post_group_questions?.some(subQ => subQ.id === q.id));
+                 if (parentGroup && parentGroup.dependent_on && parentGroup.dependent_value) {
+                     if (answers[parentGroup.dependent_on] !== parentGroup.dependent_value) {
+                         isVisible = false;
+                     }
+                 }
+
+                if (isVisible && q.required) {
+                    const value = finalAnswers[q.id];
+                    const isMissing = (value === undefined || value === null || value === '');
+
+                    if (isMissing) {
+                        console.warn(`Required field missing: ${q.id} ('${q.question_text}')`);
+                        missingRequiredFields.push(q);
+                         if (!firstMissingField) {
+                            firstMissingField = document.querySelector(`[name="${q.id}"]`) || // Input/Select
+                                                document.querySelector(`[data-question-id="${q.id}"]`); // Group container
+                         }
+                     }
+                 }
+            });
+
+
+            if (missingRequiredFields.length > 0) {
+                 alert(`Please fill in all required fields. Missing: ${missingRequiredFields.map(q => `'${q.question_text}'`).join(', ')}`);
+                 if (firstMissingField) {
+                     firstMissingField.focus({ preventScroll: true }); // Focus element
+                     firstMissingField.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                 }
+                 return;
+             }
+
+            console.log('Form validated successfully. Final answers:', finalAnswers);
+            alert('Form submitted successfully! (Check console for final answers)');
+        }
+
+        function toggleEditorMode() { /* ... (Keep existing logic) ... */
+             isAdminMode = !isAdminMode;
+             document.getElementById('adminPanel').style.display = isAdminMode ? 'block' : 'none';
+             document.getElementById('toggleEditorMode').textContent = isAdminMode ? 'Exit Editor Mode' : 'Enter Editor Mode';
+             if (!isAdminMode) {
+                 toggleAddQuestionFormUI(false);
+                 editingQuestionId = null;
+              }
+              renderForm();
+        }
+
+        function handleMoveQuestion(itemId, direction, sourceArray) { /* ... (Keep existing logic) ... */
+             const currentIndex = sourceArray.findIndex(q => q.id === itemId);
+             if (currentIndex === -1) return;
+             const targetIndex = direction === 'up' ? currentIndex - 1 : currentIndex + 1;
+             if (targetIndex < 0 || targetIndex >= sourceArray.length) return;
+
+             const itemToMove = sourceArray[currentIndex];
+             const itemToSwapWith = sourceArray[targetIndex];
+             itemToMove.order = itemToMove.order ?? 9999;
+             itemToSwapWith.order = itemToSwapWith.order ?? 9999;
+
+             const tempOrder = itemToMove.order;
+             itemToMove.order = itemToSwapWith.order;
+             itemToSwapWith.order = tempOrder;
+             renderForm();
+        }
+
+        // --- Admin Mode Specific Functions ---
+
+        function toggleAddQuestionFormUI(forceState = null) { /* ... (Keep existing logic, ensure calculated checkbox resets) ... */
+              showAddQuestionForm = forceState !== null ? forceState : !showAddQuestionForm;
+              const addQuestionForm = document.getElementById('addQuestionForm');
+              const toggleButton = document.getElementById('toggleAddQuestionForm');
+
+              addQuestionForm.style.display = showAddQuestionForm ? 'block' : 'none';
+              toggleButton.textContent = showAddQuestionForm ? 'Cancel Adding Question' : 'Add New Question';
+              toggleButton.className = showAddQuestionForm ? 'admin-button danger' : 'admin-button primary';
+
+              if (showAddQuestionForm) {
+                  addQuestionForm.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+              } else {
+                  // Reset form fields
+                  document.getElementById('newQuestionId').value = '';
+                  document.getElementById('newQuestionText').value = '';
+                  document.getElementById('newQuestionInputType').value = 'text';
+                  document.getElementById('newQuestionSection').value = 'Basic Info';
+                  document.getElementById('newQuestionDefault').value = '';
+                  document.getElementById('newQuestionRequired').checked = false;
+                  document.getElementById('newQuestionCalculated').checked = false; // Reset calculated
+                   document.getElementById('newQuestionDependentOn').value = '';
+                   document.getElementById('newQuestionDependentValue').value = '';
+                  document.getElementById('newQuestionOrder').value = '999';
+                  document.getElementById('newQuestionOptions').value = '';
+                  document.getElementById('optionsField').style.display = 'none';
+                  toggleCalculatedFieldOptions(); // Ensure dependent fields hide
+              }
+        }
+
+        function handleAddQuestion() { /* ... (Keep existing logic, add calculated, dependent_on, dependent_value) ... */
+            const id = document.getElementById('newQuestionId').value.trim();
+            const questionText = document.getElementById('newQuestionText').value.trim();
+            const inputType = document.getElementById('newQuestionInputType').value;
+            const section = document.getElementById('newQuestionSection').value;
+            const defaultValue = document.getElementById('newQuestionDefault').value.trim();
+            const required = document.getElementById('newQuestionRequired').checked;
+            const calculated = document.getElementById('newQuestionCalculated').checked; // Get calculated
+            const order = parseInt(document.getElementById('newQuestionOrder').value, 10) || 999;
+            const optionsString = document.getElementById('newQuestionOptions').value.trim();
+            const dependentOn = document.getElementById('newQuestionDependentOn').value.trim();
+            const dependentValue = document.getElementById('newQuestionDependentValue').value.trim();
+
+
+             if (!id || !questionText) {
+                 alert('Question ID and Question Text are required.');
+                 return;
+             }
+             if (questions.some(q => q.id === id) || getAllQuestionsIncludingDynamic().some(q => q.id === id)) {
+                 alert('A question or dynamic field with this ID already exists. Please use a unique ID.');
+                 return;
+             }
+
+             const newQuestion = { id, question_text: questionText, input_type: inputType, section, required, order };
+
+             if (calculated) newQuestion.calculated = true;
+             if (defaultValue) newQuestion.default = defaultValue;
+             if (dependentOn && dependentValue) {
+                 newQuestion.dependent_on = dependentOn;
+                 newQuestion.dependent_value = dependentValue;
+             }
+
+             if (inputType === 'select') {
+                 const options = optionsString.split(',').map(opt => opt.trim()).filter(opt => opt !== '');
+                 if (options.length === 0) {
+                     alert('Please provide at least one option for the select field (comma-separated).');
+                     return;
+                 }
+                 newQuestion.options = options;
+             }
+
+             questions.push(newQuestion);
+             console.log('Added new question:', newQuestion);
+             toggleAddQuestionFormUI(false);
+             initializeFormState();
+             renderForm();
+        }
+
+        function handleDeleteQuestion(id) { /* ... (Keep existing logic) ... */
+            const questionIndex = questions.findIndex(q => q.id === id);
+            let questionText = `Question with ID ${id}`; // Fallback text
+
+             // Find the question in main list or post groups to get text
+            const mainQuestion = questions.find(q => q.id === id);
+            let subQuestionParent = null;
+            let subQuestionIndex = -1;
+
+             if (mainQuestion) {
+                questionText = mainQuestion.question_text;
+            } else {
+                questions.forEach(group => {
+                     if (group.is_post_group && group.post_group_questions) {
+                        const idx = group.post_group_questions.findIndex(subQ => subQ.id === id);
+                        if (idx !== -1) {
+                            questionText = group.post_group_questions[idx].question_text;
+                            subQuestionParent = group;
+                            subQuestionIndex = idx;
+                        }
+                    }
+                });
+            }
+
+
+             if (confirm(`Are you sure you want to delete: "${questionText}"?`)) {
+                 if (mainQuestion) {
+                    questions.splice(questionIndex, 1);
+                } else if (subQuestionParent && subQuestionIndex !== -1) {
+                    subQuestionParent.post_group_questions.splice(subQuestionIndex, 1);
+                 } else {
+                    console.error(`Could not find question ${id} to delete.`);
+                     return; // Don't proceed if not found
+                 }
+
+                 delete answers[id];
+                 // Cleanup dynamic fields/answers if it was a trigger question
+                 const dynamicConfig = initialChainlinkFenceQuestions.find(q => q.id === id)?.dynamic_fields;
+                 if (dynamicConfig) {
+                    // Clear structures and answers
+                     if (dynamicConfig.type === 'gate') {
+                         dynamicFieldStructures[`${dynamicConfig.gate_type}Gates`] = [];
+                         cleanupOrphanedAnswers(id, 0); // Remove related answers
+                     } else { // pulls
+                         dynamicFieldStructures.pulls = [];
+                         cleanupOrphanedAnswers(id, 0); // Remove related answers
+                     }
+                 }
+
+                 console.log(`Deleted question: ${id}`);
+                 renderForm(); // Re-render
+             }
+        }
+
+        function toggleOptionsField() { /* ... (Keep existing logic) ... */
+              const inputType = document.getElementById('newQuestionInputType').value;
+              document.getElementById('optionsField').style.display = inputType === 'select' ? 'block' : 'none';
+        }
+
+        // --- NEW --- Show/hide dependency fields based on calculated checkbox
+        function toggleCalculatedFieldOptions() {
+            const isCalculated = document.getElementById('newQuestionCalculated').checked;
+            // Hide dependency fields if calculated
+            document.getElementById('newQuestionDependentOn').parentElement.style.display = isCalculated ? 'none' : 'block';
+            document.getElementById('newQuestionDependentValue').parentElement.style.display = isCalculated ? 'none' : 'block';
+             // Maybe hide Default Value too?
+             document.getElementById('newQuestionDefault').parentElement.style.display = isCalculated ? 'none' : 'block';
+        }
+
+
+        // --- Rendering Helpers ---
+
+        function renderQuestion(question, index, totalInSection, sectionArray) { /* ... (Keep existing logic, pass sectionArray) ... */
+            // Visibility Check (Dependency)
+             let isVisible = true;
+             if (question.dependent_on && question.dependent_value) {
+                 if (answers[question.dependent_on] !== question.dependent_value) {
+                     isVisible = false;
+                 }
+             }
+             if (!isVisible) return null; // Don't render if not visible
+
+
+            const questionGroup = document.createElement('div');
+            questionGroup.className = 'question-group';
+            questionGroup.dataset.questionId = question.id;
+
+             // Pass main 'questions' array for label editing context
+            const labelContainer = createLabelElement(question, questions, renderForm);
+            questionGroup.appendChild(labelContainer);
+
+            const inputElement = createInputElement(question, answers[question.id], handleChange);
+            questionGroup.appendChild(inputElement);
+
+            if (isAdminMode) {
+                // Pass the correct source array for moving (sectionArray)
+                const actionButtons = createAdminActionButtons(
+                    question.id, index, totalInSection, sectionArray, // Use sectionArray for moving
+                    handleDeleteQuestion,
+                    () => { editingQuestionId = question.id; renderForm(); },
+                    handleMoveQuestion
+                );
+                 // Append buttons *after* the input for better layout potentially
+                 // Or append to labelContainer? Test layout. Let's try after input.
+                 questionGroup.appendChild(actionButtons);
+             }
+
+             return questionGroup;
+        }
+
+        function renderPostGroup(question, sectionArray) { /* ... (Keep existing logic, pass sectionArray) ... */
+             // Visibility Check (Dependency on the group itself)
+             let isVisible = true;
+             if (question.dependent_on && question.dependent_value) {
+                 if (answers[question.dependent_on] !== question.dependent_value) {
+                     isVisible = false;
+                 }
+             }
+              if (!isVisible) return null; // Don't render group if not visible
+
+
+            if (!question.post_group_questions || question.post_group_questions.length === 0) return null;
+
+            const postGroupContainer = document.createElement('div');
+            postGroupContainer.className = 'post-group-container';
+            postGroupContainer.dataset.questionId = question.id;
+
+            // Group Title
+            const titleContainer = createLabelElement(question, questions, renderForm);
+             // Ensure title element itself has the correct class if it's a span/label
+             const titleElement = titleContainer.querySelector('label, span');
+             if (titleElement) titleElement.className = 'post-group-title';
+             else titleContainer.className += ' post-group-title'; // Fallback if createLabelElement structure changes
+            postGroupContainer.appendChild(titleContainer);
+
+            if (isAdminMode) {
+                // Find group's index within the section for moving
+                 const groupIndex = sectionArray.findIndex(q => q.id === question.id);
+
+                 const groupActionButtons = createAdminActionButtons(
+                     question.id, groupIndex, sectionArray.length, sectionArray, // Use sectionArray for moving group
+                     handleDeleteQuestion,
+                     () => { editingQuestionId = question.id; renderForm(); },
+                     handleMoveQuestion
+                 );
+                titleContainer.appendChild(groupActionButtons);
+            }
+
+            // Sub-Fields
+            const postGroupFields = document.createElement('div');
+            postGroupFields.className = 'post-group-fields';
+
+            const sortedFields = (question.post_group_questions || []).sort((a, b) =>
+                (a.order ?? 9999) - (b.order ?? 9999)
+            );
+
+            sortedFields.forEach((field, index) => {
+                 // Sub-field Visibility Check (Dependency)
+                 let isSubFieldVisible = true;
+                 if (field.dependent_on && field.dependent_value) {
+                     if (answers[field.dependent_on] !== field.dependent_value) {
+                         isSubFieldVisible = false;
+                     }
+                 }
+                 if (!isSubFieldVisible) return; // Skip rendering this sub-field
+
+                const postFieldItem = document.createElement('div');
+                postFieldItem.className = 'post-field-item';
+
+                const fieldLabelContainer = createLabelElement(field, question.post_group_questions, renderForm);
+                postFieldItem.appendChild(fieldLabelContainer);
+                const fieldInputElement = createInputElement(field, answers[field.id], handleChange);
+                postFieldItem.appendChild(fieldInputElement);
+
+                if (isAdminMode) {
+                    const fieldActionButtons = createAdminActionButtons(
+                        field.id, index, sortedFields.length, question.post_group_questions, // Use sub-array for moving
+                        (subFieldId) => { /* custom delete */
+                            if (confirm(`Delete field "${field.question_text}"?`)) {
+                                question.post_group_questions = question.post_group_questions.filter(f => f.id !== subFieldId);
+                                delete answers[subFieldId];
+                                renderForm();
+                            }
+                        },
+                        () => { editingQuestionId = field.id; renderForm(); },
+                        handleMoveQuestion
+                    );
+                    postFieldItem.appendChild(fieldActionButtons);
+                }
+                postGroupFields.appendChild(postFieldItem);
+            });
+
+            postGroupContainer.appendChild(postGroupFields);
+            return postGroupContainer;
+        }
+
+        // --- Dynamic Field Generation and Rendering ---
+        // ... (Keep updateDynamicFields, generate...Structures, cleanupOrphanedAnswers, renderDynamicPullsSection, renderGateFields, createDynamicFieldItem) ...
+         function updateDynamicFields(triggerQuestionId, count) {
+             const question = questions.find(q => q.id === triggerQuestionId);
+             if (!question || !question.dynamic_fields) return;
+             const config = question.dynamic_fields;
+
+             if (config.type === 'gate') {
+                 dynamicFieldStructures[`${config.gate_type}Gates`] = generateGateFieldStructures(config, count);
+             } else {
+                 dynamicFieldStructures.pulls = generatePullFieldStructures(config, count);
+             }
+             cleanupOrphanedAnswers(triggerQuestionId, count);
+         }
+         function generatePullFieldStructures(config, count) { /* ... keep ... */
+             const newFields = [];
+             const template = config.template;
+             for (let i = 1; i <= count; i++) {
+                 const nStr = i.toString();
+                 newFields.push({
+                     id: template.id_template.replace('{n}', nStr),
+                     question_text: template.text_template.replace('{n}', nStr),
+                     input_type: template.input_type || 'number',
+                     required: template.required || false,
+                     placeholder: template.placeholder,
+                     is_dynamic_part: true,
+                     trigger_id: triggerIdFromConfig(config), // Find original trigger ID if needed
+                     order: i,
+                     style: template.style
+                  });
+              }
+              console.log(`Generated ${newFields.length} pull field structures.`);
+              return newFields;
+         }
+          function generateGateFieldStructures(config, count) { /* ... keep ... */
+             const newGateGroups = [];
+             const template = config.template;
+             const triggerId = triggerIdFromConfig(config);
+             for (let i = 1; i <= count; i++) {
+                 const nStr = i.toString();
+                 const currentGateFields = [];
+                 (template.fields || []).forEach((fieldTmpl, index) => {
+                     currentGateFields.push({
+                         id: fieldTmpl.id_template.replace('{n}', nStr),
+                         question_text: fieldTmpl.text_template.replace('{n}', nStr),
+                         input_type: fieldTmpl.input_type || 'number',
+                         options: fieldTmpl.options, default: fieldTmpl.default,
+                         required: fieldTmpl.required || false, is_post_field: false,
+                         is_dynamic_part: true, trigger_id: triggerId, gate_number: i,
+                         order: fieldTmpl.order ?? index, style: template.style
+                     });
+                 });
+                 (template.post_fields || []).forEach((fieldTmpl, index) => {
+                      currentGateFields.push({
+                         id: fieldTmpl.id_template.replace('{n}', nStr),
+                         question_text: fieldTmpl.text_template.replace('{n}', nStr),
+                         input_type: fieldTmpl.input_type || 'number',
+                         options: fieldTmpl.options, default: fieldTmpl.default,
+                         required: fieldTmpl.required || false, is_post_field: true,
+                         is_dynamic_part: true, trigger_id: triggerId, gate_number: i,
+                         order: fieldTmpl.order ?? (100 + index), style: template.style
+                     });
+                  });
+                  // Sort fields within the gate group
+                  currentGateFields.sort((a, b) => (a.order ?? 9999) - (b.order ?? 9999));
+                  newGateGroups.push(currentGateFields);
+              }
+              console.log(`Generated ${newGateGroups.length} ${config.gate_type} gate groups structures.`);
+              return newGateGroups;
+          }
+         function cleanupOrphanedAnswers(triggerQuestionId, currentCount) { /* ... keep ... */
+              // Determine prefix based on trigger ID (e.g., 'numberOfPulls' -> 'pull', 'numberOfSingleGates' -> 'singleGate')
+              let prefix = triggerQuestionId.replace('numberOf', '');
+              if (prefix.endsWith('s')) prefix = prefix.slice(0, -1); // Remove trailing 's'
+              prefix = prefix.charAt(0).toLowerCase() + prefix.slice(1); // Make first letter lowercase (e.g., SingleGate -> singleGate)
+
+              // Regex needs to match the prefix, the number, and then the rest of the ID
+              const regex = new RegExp(`^${prefix}(\\d+)([A-Z].*|Length)$`); // Matches pull{n}Length, singleGate{n}Width, singleGate{n}PostDiameter etc.
+
+              Object.keys(answers).forEach(key => {
+                  const match = key.match(regex);
+                  if (match && match[1]) {
+                      const fieldNumber = parseInt(match[1], 10);
+                      if (fieldNumber > currentCount) {
+                           console.log(`Cleaning up orphaned answer: ${key}`);
+                           delete answers[key];
+                       }
+                   }
+              });
+          }
+         function renderDynamicSection(triggerQuestionId) { /* ... keep ... */
+              const question = questions.find(q => q.id === triggerQuestionId);
+              if (!question || !question.dynamic_fields) return;
+              const existingContainers = document.querySelectorAll(`[data-triggered-by="${triggerQuestionId}"]`);
+              existingContainers.forEach(container => container.remove());
+              const anchorElement = document.querySelector(`.question-group[data-question-id="${triggerQuestionId}"]`);
+              if (!anchorElement) { console.error(`Anchor element not found for ${triggerQuestionId}`); return; }
+              const config = question.dynamic_fields;
+              const count = parseInt(answers[triggerQuestionId] || '0', 10);
+              if (isNaN(count) || count <= 0) return;
+
+              if (config.type === 'gate') {
+                  const gateData = dynamicFieldStructures[`${config.gate_type}Gates`];
+                  renderGateFields(question.id, config, gateData, anchorElement);
+              } else {
+                  renderDynamicPullsSection(question.id, config, dynamicFieldStructures.pulls, anchorElement);
+              }
+          }
+          function renderDynamicPullsSection(triggerId, config, fieldStructures, anchorElement) { /* ... keep ... */
+              if (!fieldStructures || fieldStructures.length === 0) return;
+              const container = document.createElement('div');
+              container.className = config.container_class || 'dynamic-fields-container';
+              container.dataset.triggeredBy = triggerId;
+              if (config.title) { /* ... title ... */
+                   const title = document.createElement('h4');
+                   title.className = 'dynamic-fields-title';
+                   title.textContent = config.title;
+                   container.appendChild(title);
+              }
+              const grid = document.createElement('div');
+              grid.className = config.grid_class || 'dynamic-fields-grid';
+              fieldStructures.forEach(field => {
+                  const fieldItem = createDynamicFieldItem(field, fieldStructures, renderDynamicSection); // Pass pull structures
+                  grid.appendChild(fieldItem);
+              });
+              container.appendChild(grid);
+              anchorElement.after(container);
+              console.log(`Rendered dynamic pulls section after ${triggerId}`);
+          }
+          function renderGateFields(triggerId, config, gateGroupsData, anchorElement) { /* ... keep ... */
+              if (!gateGroupsData || gateGroupsData.length === 0) return;
+              let lastInsertedElement = anchorElement;
+              gateGroupsData.forEach((gateFields, gateIndex) => {
+                  const gateNumber = gateIndex + 1;
+                  const container = document.createElement('div');
+                  container.className = config.container_class || 'gate-fields-container';
+                  container.dataset.triggeredBy = triggerId;
+                  container.dataset.gateType = config.gate_type;
+                  container.dataset.gateNumber = gateNumber;
+
+                   const title = document.createElement('h4');
+                   title.className = 'gate-fields-title';
+                   title.textContent = config.title_template.replace('{n}', gateNumber.toString());
+                   container.appendChild(title);
+
+                  // Render fields sorted by their internal order property
+                   const sortedGateFields = gateFields.sort((a, b) => (a.order ?? 9999) - (b.order ?? 9999));
+                   const fieldsOnly = sortedGateFields.filter(f => !f.is_post_field);
+                   const postFields = sortedGateFields.filter(f => f.is_post_field);
+
+                  if (fieldsOnly.length > 0) { /* ... grid for fieldsOnly ... */
+                       const grid = document.createElement('div');
+                       grid.className = config.grid_class || 'gate-fields-grid';
+                       fieldsOnly.forEach(field => {
+                           // Pass the specific gate's fields array for editing context
+                           const fieldItem = createDynamicFieldItem(field, gateFields, renderDynamicSection);
+                           grid.appendChild(fieldItem);
+                       });
+                       container.appendChild(grid);
+                  }
+                  if (postFields.length > 0) { /* ... postsContainer for postFields ... */
+                       const postsContainer = document.createElement('div');
+                       postsContainer.className = config.post_container_class || 'gate-posts-container';
+                       const postsTitle = document.createElement('h5');
+                       postsTitle.className = 'gate-posts-title';
+                       postsTitle.textContent = config.post_title_template.replace('{n}', gateNumber.toString());
+                       postsContainer.appendChild(postsTitle);
+                       const postsGrid = document.createElement('div');
+                       postsGrid.className = config.post_grid_class || 'gate-fields-grid';
+                       postFields.forEach(field => {
+                           const fieldItem = createDynamicFieldItem(field, gateFields, renderDynamicSection);
+                           postsGrid.appendChild(fieldItem);
+                       });
+                       postsContainer.appendChild(postsGrid);
+                       container.appendChild(postsContainer);
+                  }
+                  lastInsertedElement.after(container);
+                  lastInsertedElement = container;
+              });
+              console.log(`Rendered ${gateGroupsData.length} ${config.gate_type} gate sections after ${triggerId}`);
+          }
+         function createDynamicFieldItem(field, fieldStructureArray, renderCallback) { /* ... keep existing logic ... */
+             const fieldItem = document.createElement('div');
+             fieldItem.className = field.is_post_field ? 'gate-field-item post' : (field.gate_number ? 'gate-field-item' : 'dynamic-field-item');
+             const style = field.style || {};
+             const isPost = field.is_post_field;
+             const labelContainer = createLabelElement(field, fieldStructureArray, renderCallback); // Pass structure array for editing
+             fieldItem.appendChild(labelContainer);
+             const inputElement = createInputElement(field, answers[field.id], handleChange);
+             inputElement.style.borderColor = isPost ? (style.postBorderColor || '') : (style.borderColor || '');
+             fieldItem.appendChild(inputElement);
+             // No admin action buttons (edit/delete/move) for dynamic fields currently
+             return fieldItem;
+         }
+
+
+        // --- Generic Element Creators ---
+
+        function createLabelElement(question, sourceArray, renderCallback) { /* ... (Keep existing logic, handle potential array differences) ... */
+            const container = document.createElement('div');
+            const isEditing = isAdminMode && editingQuestionId === question.id;
+            const isPostGroupTitle = question.is_post_group; // Check if it's a group title
+
+            if (isEditing) {
+                container.className = 'editable-label';
+                const input = document.createElement('input');
+                input.type = 'text';
+                input.value = question.question_text;
+                input.addEventListener('input', function() {
+                    // Find the question in the *correct* source array to update
+                    let targetQuestion = sourceArray.find(q => q.id === question.id);
+                    if (!targetQuestion) {
+                         // If not found, maybe it's a dynamic field label being edited?
+                         // This needs careful handling depending on how 'sourceArray' is passed
+                         // For now, primarily assume it's for static or post-group questions.
+                         console.warn(`Cannot find ${question.id} in provided sourceArray for text update.`);
+                         // Fallback: Search main questions array if it wasn't found in sub-array
+                         targetQuestion = questions.find(q => q.id === question.id);
+                    }
+                    if (targetQuestion) {
+                         targetQuestion.question_text = this.value;
+                     } else {
+                         console.error(`Could not find question ${question.id} to update text.`);
+                     }
+                 });
+                input.addEventListener('blur', () => { editingQuestionId = null; renderCallback(); });
+                input.addEventListener('keydown', (e) => { if (e.key === 'Enter' || e.key === 'Escape') { editingQuestionId = null; renderCallback(); } });
+                container.appendChild(input);
+                setTimeout(() => input.focus(), 0);
+            } else {
+                container.className = isAdminMode ? 'editable-label' : '';
+                 // Use <h4> for post group titles, span/label otherwise
+                 const labelElementTag = isPostGroupTitle ? 'h4' : (isAdminMode ? 'span' : 'label');
+                 const label = document.createElement(labelElementTag);
+                 label.className = isPostGroupTitle ? 'post-group-title-text' : 'label'; // Specific class for text part of title?
+                 label.textContent = question.question_text;
+                 if (question.required) {
+                    const requiredIndicator = document.createElement('span');
+                    requiredIndicator.className = 'required-indicator';
+                    requiredIndicator.textContent = '*';
+                    label.appendChild(requiredIndicator);
+                 }
+                 container.appendChild(label);
+             }
+             return container;
+        }
+
+         function createInputElement(question, currentValue, changeHandler) { /* ... (Keep existing logic, add calculated handling) ... */
+             let element;
+             const value = currentValue !== undefined ? currentValue : question.default || '';
+
+             if (question.input_type === 'select') {
+                 element = document.createElement('select');
+                 element.className = 'select-dropdown';
+                 const defaultOption = document.createElement('option');
+                 defaultOption.value = '';
+                 defaultOption.textContent = 'Select...';
+                 element.appendChild(defaultOption);
+                 (question.options || []).forEach(option => {
+                     const optionElement = document.createElement('option');
+                     optionElement.value = option;
+                     optionElement.textContent = option;
+                     if (option === value) optionElement.selected = true;
+                     element.appendChild(optionElement);
+                 });
+                 element.value = value; // Ensure correct value is selected
+                 element.addEventListener('change', (e) => changeHandler(question.id, e.target.value));
+             } else {
+                 element = document.createElement('input');
+                 element.className = 'input-field';
+                 element.type = question.input_type || 'text';
+                 element.placeholder = question.placeholder || 'Enter value'; // Simpler placeholder
+                 element.value = value;
+                 element.addEventListener('input', (e) => changeHandler(question.id, e.target.value));
+             }
+
+             element.required = question.required || false;
+             element.name = question.id;
+
+             // Handle calculated fields
+             if (question.calculated) {
+                element.readOnly = true;
+                element.classList.add('calculated-field');
+                element.tabIndex = -1; // Prevent tabbing into calculated fields
+            }
+
+             return element;
+         }
+
+        function createAdminActionButtons(questionId, currentIndex, totalItems, sourceArray, deleteHandler, editHandler, moveHandler) { /* ... (Keep existing logic) ... */
+             const container = document.createElement('div');
+             container.className = 'action-buttons-container';
+             const moveUpButton = document.createElement('button'); /* ... */
+             moveUpButton.type = 'button'; moveUpButton.className = 'action-button move'; moveUpButton.textContent = '⬆️'; moveUpButton.title = 'Move Up';
+             moveUpButton.disabled = currentIndex <= 0; // Use <= 0 for safety
+             moveUpButton.addEventListener('click', (e) => { e.preventDefault(); moveHandler(questionId, 'up', sourceArray); });
+             const moveDownButton = document.createElement('button'); /* ... */
+             moveDownButton.type = 'button'; moveDownButton.className = 'action-button move'; moveDownButton.textContent = '⬇️'; moveDownButton.title = 'Move Down';
+             moveDownButton.disabled = currentIndex >= totalItems - 1; // Use >= for safety
+             moveDownButton.addEventListener('click', (e) => { e.preventDefault(); moveHandler(questionId, 'down', sourceArray); });
+             const editButton = document.createElement('button'); /* ... */
+             editButton.type = 'button'; editButton.className = 'action-button edit'; editButton.innerHTML = '✏️<span style="font-size:0.9em;margin-left:2px;">Edit</span>'; editButton.title = 'Edit';
+             editButton.addEventListener('click', (e) => { e.preventDefault(); editHandler(questionId); });
+             const deleteButton = document.createElement('button'); /* ... */
+             deleteButton.type = 'button'; deleteButton.className = 'action-button delete'; deleteButton.innerHTML = '🗑️<span style="font-size:0.9em;margin-left:2px;">Del</span>'; deleteButton.title = 'Delete';
+             deleteButton.addEventListener('click', (e) => { e.preventDefault(); deleteHandler(questionId); });
+             container.appendChild(moveUpButton); container.appendChild(moveDownButton); container.appendChild(editButton); container.appendChild(deleteButton);
+             return container;
+         }
+
+        // --- Utility Functions ---
+        function getSections() { /* ... (Keep existing logic, maybe add new sections dynamically?) ... */
+             const sections = {};
+             const sectionOrderMap = {}; // To store the first encountered order for a section
+             const sectionNames = new Set(); // To get unique section names
+
+             // Process main questions and group titles
+             questions.forEach(question => {
+                const section = question.section || 'Other';
+                sectionNames.add(section);
+                if (!sections[section]) {
+                     sections[section] = [];
+                     // Store the order of the first item found for this section for sorting sections later
+                     sectionOrderMap[section] = question.order ?? 9999;
+                 }
+                 sections[section].push(question);
+            });
+
+             // Define explicit order, falling back to discovered order
+             const explicitSectionOrder = ['Basic Info', 'Posts', 'Gates', 'Line Posts', 'Extra Options', 'Other'];
+             const sortedSectionNames = Array.from(sectionNames).sort((a, b) => {
+                 const indexA = explicitSectionOrder.indexOf(a);
+                 const indexB = explicitSectionOrder.indexOf(b);
+
+                 if (indexA !== -1 && indexB !== -1) return indexA - indexB; // Both explicitly ordered
+                 if (indexA !== -1) return -1; // A is explicit, B is not
+                 if (indexB !== -1) return 1; // B is explicit, A is not
+
+                 // Neither is explicitly ordered, sort by the order of their first question
+                 return (sectionOrderMap[a] ?? 9999) - (sectionOrderMap[b] ?? 9999);
+             });
+
+
+             return { sections, sortedSectionNames };
+        }
+
+        function getAllQuestionsIncludingDynamic() { /* ... (Keep existing logic) ... */
+             const dynamicFields = [
+                 ...dynamicFieldStructures.pulls, ...dynamicFieldStructures.singleGates.flat(),
+                 ...dynamicFieldStructures.doubleGates.flat(), ...dynamicFieldStructures.slidingGates.flat()
+             ];
+             const postGroupSubQuestions = questions
+                 .filter(q => q.is_post_group && q.post_group_questions)
+                 .flatMap(q => q.post_group_questions);
+              // Filter out group titles themselves from this flat list
+             return [...questions.filter(q => !q.is_post_group), ...postGroupSubQuestions, ...dynamicFields];
+         }
+
+         // Helper to get trigger ID from dynamic field config (needed because config doesn't store it directly)
+         function triggerIdFromConfig(config) {
+            // Find the question that has this config object
+            const triggerQuestion = questions.find(q => q.dynamic_fields === config);
+            return triggerQuestion ? triggerQuestion.id : null;
+         }
+
+        // --- NEW --- Download HTML file
+        function downloadHtmlFile() {
+            const html = document.documentElement.outerHTML;
+            const blob = new Blob([html], { type: 'text/html' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'fence-calculator.html';
+            a.click();
+            URL.revokeObjectURL(url);
+        }
     </script>
 </body>
 </html>
