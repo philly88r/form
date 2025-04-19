@@ -727,6 +727,13 @@
             isAdminMode = !isAdminMode;
             document.getElementById('adminPanel').style.display = isAdminMode ? 'block' : 'none';
             document.getElementById('toggleEditorMode').textContent = isAdminMode ? 'Exit Editor Mode' : 'Enter Editor Mode';
+            
+            // Make sure questions array is properly initialized if it's empty
+            if (questions.length === 0) {
+                console.log('Questions array is empty, reinitializing from initial questions');
+                questions = JSON.parse(JSON.stringify(initialChainlinkFenceQuestions));
+            }
+            
             if (!isAdminMode) {
                 toggleAddQuestionFormUI(false);
                 editingQuestionId = null;
@@ -903,10 +910,19 @@
 
         function renderForm() {
             console.log('Rendering form with admin mode:', isAdminMode);
+            console.log('Current questions array length:', questions.length);
+            
+            if (questions.length === 0) {
+                console.warn('Warning: Questions array is empty during renderForm!');
+                questions = JSON.parse(JSON.stringify(initialChainlinkFenceQuestions));
+                console.log('Reinitialized questions array, new length:', questions.length);
+            }
+            
             const formSections = document.getElementById('formSections');
             formSections.innerHTML = ''; // Clear existing content
             
             const { sections, sortedSectionNames } = getSections();
+            console.log('Found sections:', sortedSectionNames);
             
             sortedSectionNames.forEach(sectionName => {
                 // Create section container
