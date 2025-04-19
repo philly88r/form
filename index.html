@@ -260,11 +260,11 @@
             document.getElementById('newQuestionInputType').addEventListener('change', toggleOptionsField);
             document.getElementById('newQuestionCalculated').addEventListener('change', toggleCalculatedFieldOptions);
             document.getElementById('fenceCalculatorForm').addEventListener('submit', handleFormSubmit);
-            document.getElementById('downloadFormButton').addEventListener('click', downloadFormHtmlCss); // Add download button listener
+            document.getElementById('downloadFormButton').addEventListener('click', downloadFormHtmlCss);
 
             initializeFormState();
             renderForm();
-            recalculateAndUpdateFields(); // Perform initial calculation
+            recalculateAndUpdateFields();
         });
 
         // --- Core Functions ---
