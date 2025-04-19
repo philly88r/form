@@ -89,6 +89,7 @@
 
              <div id="addQuestionForm" class="add-question-form" style="display: none;">
                  <h4>Add New Question</h4>
+                 <div id="editingPostGroupInfo" style="display: none; margin-bottom: 10px; padding: 5px; background-color: #f0f9ff; border-left: 3px solid #3b82f6; color: #1e40af;"></div>
                  <div class="question-form-field">
                      <label class="label">Question ID (unique identifier)<span class="required-indicator">*</span></label>
                      <input id="newQuestionId" type="text" class="input-field" placeholder="E.g., fenceHeight">
@@ -715,13 +716,41 @@ ${cssContent}
         function renderQuestion(question) {
             const wrapper = document.createElement('div');
             wrapper.className = 'question-wrapper';
+            wrapper.dataset.questionId = question.id; // Add data attribute for easier identification
+            
             const label = createLabelElement(question);
             const input = createInputElement(question);
             wrapper.appendChild(label);
             wrapper.appendChild(input);
 
             if (isAdminMode) {
-                const actionButtons = createAdminActionButtons(question.id, questions.findIndex(q => q.id === question.id), questions.length, questions, handleDeleteQuestion, handleEditQuestion, handleMoveQuestion);
+                // Find the correct source array and index for this question
+                let sourceArray = questions;
+                let currentIndex = questions.findIndex(q => q.id === question.id);
+                
+                // If not found in main array, it might be in a post group
+                if (currentIndex === -1) {
+                    for (const group of questions) {
+                        if (group.is_post_group && group.post_group_questions) {
+                            const subIndex = group.post_group_questions.findIndex(sq => sq.id === question.id);
+                            if (subIndex !== -1) {
+                                sourceArray = group.post_group_questions;
+                                currentIndex = subIndex;
+                                break;
+                            }
+                        }
+                    }
+                }
+                
+                const actionButtons = createAdminActionButtons(
+                    question.id, 
+                    currentIndex, 
+                    sourceArray.length, 
+                    sourceArray, 
+                    handleDeleteQuestion, 
+                    handleEditQuestion, 
+                    handleMoveQuestion
+                );
                 wrapper.appendChild(actionButtons);
             }
 
@@ -730,14 +759,24 @@ ${cssContent}
 
         function renderPostGroup(question) {
             const groupDiv = document.createElement('div');
-            groupDiv.className = 'post-group';
-            const groupTitle = document.createElement('div');
+            groupDiv.className = 'post-group-container';
+            groupDiv.dataset.groupId = question.id; // Add data attribute for easier identification
+            
+            const groupTitle = document.createElement('h3');
             groupTitle.className = 'post-group-title';
             groupTitle.textContent = question.question_text;
             groupDiv.appendChild(groupTitle);
 
             if (isAdminMode) {
-                const actionButtons = createAdminActionButtons(question.id, questions.findIndex(q => q.id === question.id), questions.length, questions, handleDeleteQuestion, handleEditQuestion, handleMoveQuestion);
+                const actionButtons = createAdminActionButtons(
+                    question.id, 
+                    questions.findIndex(q => q.id === question.id), 
+                    questions.length, 
+                    questions, 
+                    handleDeleteQuestion, 
+                    handleEditQuestion, 
+                    handleMoveQuestion
+                );
                 groupTitle.appendChild(actionButtons);
             }
 
@@ -746,139 +785,172 @@ ${cssContent}
                 subElem.classList.add('post-field-item');
                 groupDiv.appendChild(subElem);
             });
+            
             return groupDiv;
         }
 
-        function createInputElement(question) {
-            const input = document.createElement('input');
-            input.className = 'input-field';
-            input.type = question.input_type || 'text';
-            input.id = question.id;
-            input.value = answers[question.id] || '';
-            input.required = !!question.required;
-            input.disabled = !!question.calculated;
-            input.addEventListener('input', e => handleChange(question.id, e.target.value));
-            return input;
-        }
-
-        function createLabelElement(question) {
-            const label = document.createElement('label');
-            label.className = 'label';
-            label.htmlFor = question.id;
-            label.textContent = question.question_text;
-            if (question.required) {
-                const req = document.createElement('span');
-                req.className = 'required-indicator';
-                req.textContent = '*';
-                label.appendChild(req);
-            }
-            return label;
-        }
-
-        function renderDynamicSection(formSections) {
-            // Example: render dynamic fields for pulls, gates, etc.
-            // (You can expand this as needed for your use case)
-        }
-
-        function initializeFormState() {
-            console.log('Initializing form state...');
-            answers = {};
-            dynamicFieldStructures = { pulls: [], singleGates: [], doubleGates: [], slidingGates: [] };
-
-            let maxOrder = 0;
-            const assignOrder = (item) => {
-                if (item.order === undefined || item.order === null) {
-                    item.order = 9999;
-                }
-                if (!isNaN(item.order) && item.order > maxOrder) maxOrder = item.order;
-            };
-
-            questions.forEach(q => {
-                assignOrder(q);
-                if (q.is_post_group && q.post_group_questions) {
-                    q.post_group_questions.forEach(assignOrder);
-                }
+        function createAdminActionButtons(questionId, currentIndex, totalItems, sourceArray, deleteHandler, editHandler, moveHandler) {
+            const container = document.createElement('div');
+            container.className = 'action-buttons-container';
+            
+            const moveUpButton = document.createElement('button');
+            moveUpButton.type = 'button'; 
+            moveUpButton.className = 'action-button move'; 
+            moveUpButton.textContent = '⬆️'; 
+            moveUpButton.title = 'Move Up';
+            moveUpButton.disabled = currentIndex <= 0; // Use <= 0 for safety
+            moveUpButton.addEventListener('click', function(e) { 
+                e.preventDefault();
+                e.stopPropagation();
+                console.log(`Moving ${questionId} up in array of length ${sourceArray.length}, from index ${currentIndex}`);
+                moveHandler(questionId, 'up', sourceArray); 
             });
-
-            questions.forEach(q => {
-                if (q.default !== undefined) {
-                    answers[q.id] = q.default;
-                }
-                if (q.dynamic_fields) {
-                    const count = parseInt(answers[q.id] || '0', 10);
-                    if (!isNaN(count) && count >= 0) { // Allow 0 count
-                        updateDynamicFields(q.id, count);
-                    }
-                }
-                // Init answers for post group sub-questions
-                if (q.is_post_group && q.post_group_questions) {
-                    q.post_group_questions.forEach(subQ => {
-                        if (subQ.default !== undefined) {
-                            answers[subQ.id] = subQ.default;
-                        }
-                    });
-                }
+            
+            const moveDownButton = document.createElement('button');
+            moveDownButton.type = 'button'; 
+            moveDownButton.className = 'action-button move'; 
+            moveDownButton.textContent = '⬇️'; 
+            moveDownButton.title = 'Move Down';
+            moveDownButton.disabled = currentIndex >= totalItems - 1; // Use >= for safety
+            moveDownButton.addEventListener('click', function(e) { 
+                e.preventDefault();
+                e.stopPropagation();
+                console.log(`Moving ${questionId} down in array of length ${sourceArray.length}, from index ${currentIndex}`);
+                moveHandler(questionId, 'down', sourceArray); 
             });
-
-            // Recalculate after defaults are set
-            recalculateAndUpdateFields();
-            console.log('Initial answers:', answers);
+            
+            const editButton = document.createElement('button');
+            editButton.type = 'button'; 
+            editButton.className = 'action-button edit'; 
+            editButton.innerHTML = '✏️<span style="font-size:0.9em;margin-left:2px;">Edit</span>'; 
+            editButton.title = 'Edit';
+            editButton.addEventListener('click', function(e) { 
+                e.preventDefault();
+                e.stopPropagation();
+                console.log(`Editing question ${questionId}`);
+                editHandler(questionId); 
+            });
+            
+            const deleteButton = document.createElement('button');
+            deleteButton.type = 'button'; 
+            deleteButton.className = 'action-button delete'; 
+            deleteButton.innerHTML = '🗑️<span style="font-size:0.9em;margin-left:2px;">Del</span>'; 
+            deleteButton.title = 'Delete';
+            deleteButton.addEventListener('click', function(e) { 
+                e.preventDefault();
+                e.stopPropagation();
+                console.log(`Deleting question ${questionId}`);
+                deleteHandler(questionId); 
+            });
+            
+            container.appendChild(moveUpButton); 
+            container.appendChild(moveDownButton); 
+            container.appendChild(editButton); 
+            container.appendChild(deleteButton);
+            
+            return container;
         }
 
-        function handleChange(id, value) {
-            // Your existing handleChange function
-        }
-
-        function recalculateAndUpdateFields() {
-            // Your existing recalculateAndUpdateFields function
-        }
-
-        function updateCalculatedFieldDisplay(specificId = null) {
-            // Your existing updateCalculatedFieldDisplay function
-        }
-
-        function handleFormSubmit(event) {
-            // Your existing handleFormSubmit function
-        }
-
-        function toggleEditorMode() {
-            isAdminMode = !isAdminMode;
-            document.getElementById('adminPanel').style.display = isAdminMode ? 'block' : 'none';
-            document.getElementById('toggleEditorMode').textContent = isAdminMode ? 'Exit Editor Mode' : 'Enter Editor Mode';
-            if (!isAdminMode) {
-                toggleAddQuestionFormUI(false);
-                editingQuestionId = null;
+        function handleMoveQuestion(itemId, direction, sourceArray) {
+            console.log(`handleMoveQuestion called for ${itemId}, direction: ${direction}, array length: ${sourceArray.length}`);
+            
+            // Find the item in the source array
+            const currentIndex = sourceArray.findIndex(q => q.id === itemId);
+            if (currentIndex === -1) {
+                console.error(`Could not find item ${itemId} in source array`);
+                return;
             }
+            
+            // Calculate target index
+            const targetIndex = direction === 'up' ? currentIndex - 1 : currentIndex + 1;
+            if (targetIndex < 0 || targetIndex >= sourceArray.length) {
+                console.error(`Target index ${targetIndex} is out of bounds (0-${sourceArray.length-1})`);
+                return;
+            }
+
+            // Swap the items directly
+            const temp = sourceArray[currentIndex];
+            sourceArray[currentIndex] = sourceArray[targetIndex];
+            sourceArray[targetIndex] = temp;
+            
+            // Also swap their order properties if they exist
+            if (sourceArray[currentIndex].order !== undefined && sourceArray[targetIndex].order !== undefined) {
+                const tempOrder = sourceArray[currentIndex].order;
+                sourceArray[currentIndex].order = sourceArray[targetIndex].order;
+                sourceArray[targetIndex].order = tempOrder;
+            }
+            
+            console.log(`Moved item ${itemId} ${direction} from index ${currentIndex} to ${targetIndex}`);
             renderForm();
         }
 
-        function toggleAddQuestionFormUI(forceState = null) {
-            showAddQuestionForm = forceState !== null ? forceState : !showAddQuestionForm;
-            const addQuestionForm = document.getElementById('addQuestionForm');
-            const toggleButton = document.getElementById('toggleAddQuestionForm');
-
-            addQuestionForm.style.display = showAddQuestionForm ? 'block' : 'none';
-            toggleButton.textContent = showAddQuestionForm ? 'Cancel Adding Question' : 'Add New Question';
-            toggleButton.className = showAddQuestionForm ? 'admin-button danger' : 'admin-button primary';
-
-            if (showAddQuestionForm) {
-                addQuestionForm.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-            } else {
-                // Reset form fields
-                document.getElementById('newQuestionId').value = '';
-                document.getElementById('newQuestionText').value = '';
-                document.getElementById('newQuestionInputType').value = 'text';
-                document.getElementById('newQuestionSection').value = 'Basic Info';
-                document.getElementById('newQuestionDefault').value = '';
-                document.getElementById('newQuestionRequired').checked = false;
-                document.getElementById('newQuestionCalculated').checked = false;
-                document.getElementById('newQuestionDependentOn').value = '';
-                document.getElementById('newQuestionDependentValue').value = '';
-                document.getElementById('newQuestionOrder').value = '999';
-                document.getElementById('newQuestionOptions').value = '';
-                document.getElementById('optionsField').style.display = 'none';
-                toggleCalculatedFieldOptions(); // Reset calculated fields UI
+        function handleEditQuestion(questionId) {
+            console.log(`handleEditQuestion called for ${questionId}`);
+            
+            // First try to find the question in the main questions array
+            let question = questions.find(q => q.id === questionId);
+            let parentGroup = null;
+            
+            // If not found in main array, check post groups
+            if (!question) {
+                for (const group of questions) {
+                    if (group.is_post_group && group.post_group_questions) {
+                        const subQuestion = group.post_group_questions.find(sq => sq.id === questionId);
+                        if (subQuestion) {
+                            question = subQuestion;
+                            parentGroup = group;
+                            break;
+                        }
+                    }
+                }
             }
+            
+            if (!question) {
+                console.error(`Could not find question ${questionId} to edit.`);
+                return;
+            }
+
+            console.log(`Found question to edit:`, question);
+            
+            // Set the editing state
+            editingQuestionId = questionId;
+            if (parentGroup) {
+                console.log(`Question is part of post group: ${parentGroup.id}`);
+                document.getElementById('editingPostGroupInfo').textContent = 
+                    `Editing a question in post group: ${parentGroup.question_text}`;
+                document.getElementById('editingPostGroupInfo').style.display = 'block';
+            } else {
+                document.getElementById('editingPostGroupInfo').style.display = 'none';
+            }
+            
+            // Populate form with question data
+            document.getElementById('newQuestionId').value = question.id;
+            document.getElementById('newQuestionText').value = question.question_text;
+            document.getElementById('newQuestionInputType').value = question.input_type || 'text';
+            document.getElementById('newQuestionSection').value = question.section || 'Other';
+            document.getElementById('newQuestionDefault').value = question.default || '';
+            document.getElementById('newQuestionRequired').checked = !!question.required;
+            document.getElementById('newQuestionCalculated').checked = !!question.calculated;
+            document.getElementById('newQuestionDependentOn').value = question.dependent_on || '';
+            document.getElementById('newQuestionDependentValue').value = 
+                Array.isArray(question.dependent_value) 
+                    ? question.dependent_value.join(', ') 
+                    : (question.dependent_value || '');
+            document.getElementById('newQuestionOrder').value = question.order || 999;
+            
+            // Handle options for select inputs
+            if (question.options && Array.isArray(question.options)) {
+                document.getElementById('newQuestionOptions').value = question.options.join(', ');
+                document.getElementById('optionsField').style.display = 'block';
+            } else {
+                document.getElementById('newQuestionOptions').value = '';
+                document.getElementById('optionsField').style.display = 
+                    question.input_type === 'select' ? 'block' : 'none';
+            }
+
+            // Update UI
+            document.getElementById('addQuestionButton').textContent = 'Save Changes';
+            toggleAddQuestionFormUI(true);
         }
 
         function handleAddQuestion() {
@@ -925,21 +997,23 @@ ${cssContent}
                 questionData.options = options;
             }
 
+            console.log(`handleAddQuestion: ${editingQuestionId ? 'Editing existing' : 'Adding new'} question`);
+            
             // Check if we're editing an existing question or adding a new one
             if (editingQuestionId) {
-                // First try to find the question in the main questions array
-                let questionIndex = questions.findIndex(q => q.id === editingQuestionId);
+                let updated = false;
                 
-                if (questionIndex !== -1) {
-                    // Found in main questions array
-                    // If the ID has changed, make sure it's not a duplicate
-                    if (id !== editingQuestionId && questions.some(q => q.id === id)) {
-                        alert('A question with this ID already exists. Please use a unique ID.');
+                // First try main questions array
+                const mainIndex = questions.findIndex(q => q.id === editingQuestionId);
+                if (mainIndex !== -1) {
+                    // If ID changed, check for duplicates
+                    if (id !== editingQuestionId && getAllQuestionsIncludingDynamic().some(q => q.id === id)) {
+                        alert(`A question with ID "${id}" already exists. Please use a unique ID.`);
                         return;
                     }
                     
-                    // Preserve any fields we want to keep from the original question
-                    const originalQuestion = questions[questionIndex];
+                    // Preserve special properties
+                    const originalQuestion = questions[mainIndex];
                     if (originalQuestion.dynamic_fields) {
                         questionData.dynamic_fields = originalQuestion.dynamic_fields;
                     }
@@ -948,417 +1022,56 @@ ${cssContent}
                         questionData.post_group_questions = originalQuestion.post_group_questions;
                     }
                     
-                    // Replace the question
-                    questions[questionIndex] = questionData;
-                    console.log('Updated question:', questionData);
+                    // Update the question
+                    questions[mainIndex] = questionData;
+                    updated = true;
+                    console.log(`Updated main question at index ${mainIndex}:`, questionData);
                 } else {
-                    // Not found in main array, check post groups
-                    let found = false;
+                    // Check post groups
                     for (const group of questions) {
-                        if (group.is_post_group && group.post_group_questions) {
-                            const subQuestionIndex = group.post_group_questions.findIndex(sq => sq.id === editingQuestionId);
-                            if (subQuestionIndex !== -1) {
-                                // If the ID has changed, make sure it's not a duplicate
-                                if (id !== editingQuestionId) {
-                                    // Check for duplicates in all questions
-                                    const allQuestions = getAllQuestionsIncludingDynamic();
-                                    if (allQuestions.some(q => q.id === id)) {
-                                        alert('A question with this ID already exists. Please use a unique ID.');
-                                        return;
-                                    }
-                                }
-                                
-                                // Update the sub-question
-                                group.post_group_questions[subQuestionIndex] = questionData;
-                                console.log('Updated sub-question:', questionData);
-                                found = true;
-                                break;
+                        if (!group.is_post_group || !group.post_group_questions) continue;
+                        
+                        const subIndex = group.post_group_questions.findIndex(sq => sq.id === editingQuestionId);
+                        if (subIndex !== -1) {
+                            // If ID changed, check for duplicates
+                            if (id !== editingQuestionId && getAllQuestionsIncludingDynamic().some(q => q.id === id)) {
+                                alert(`A question with ID "${id}" already exists. Please use a unique ID.`);
+                                return;
                             }
+                            
+                            // Update the sub-question
+                            group.post_group_questions[subIndex] = questionData;
+                            updated = true;
+                            console.log(`Updated sub-question in group ${group.id} at index ${subIndex}:`, questionData);
+                            break;
                         }
                     }
-                    
-                    if (!found) {
-                        console.error(`Could not find question ${editingQuestionId} to update.`);
-                    }
+                }
+                
+                if (!updated) {
+                    console.error(`Could not find question ${editingQuestionId} to update.`);
+                    alert(`Error: Could not find the question to update.`);
                 }
                 
                 // Reset editing state
                 editingQuestionId = null;
                 document.getElementById('addQuestionButton').textContent = 'Add Question';
+                document.getElementById('editingPostGroupInfo').style.display = 'none';
             } else {
-                // Adding new question
-                // Check for duplicate IDs in all questions
-                const allQuestions = getAllQuestionsIncludingDynamic();
-                if (allQuestions.some(q => q.id === id)) {
-                    alert('A question with this ID already exists. Please use a unique ID.');
+                // Adding new question - check for duplicate IDs
+                if (getAllQuestionsIncludingDynamic().some(q => q.id === id)) {
+                    alert(`A question with ID "${id}" already exists. Please use a unique ID.`);
                     return;
                 }
                 
+                // Add to questions array
                 questions.push(questionData);
                 console.log('Added new question:', questionData);
             }
             
+            // Reset form and re-render
             toggleAddQuestionFormUI(false);
             renderForm();
-        }
-
-        function handleEditQuestion(questionId) {
-            // First try to find the question in the main questions array
-            let question = questions.find(q => q.id === questionId);
-            
-            // If not found in main array, check post groups
-            if (!question) {
-                for (const group of questions) {
-                    if (group.is_post_group && group.post_group_questions) {
-                        const subQuestion = group.post_group_questions.find(sq => sq.id === questionId);
-                        if (subQuestion) {
-                            question = subQuestion;
-                            // Mark that this is a sub-question for special handling
-                            question._parentGroupId = group.id;
-                            break;
-                        }
-                    }
-                }
-            }
-            
-            if (!question) {
-                console.error(`Could not find question ${questionId} to edit.`);
-                return;
-            }
-
-            // Set the editing state
-            editingQuestionId = questionId;
-            
-            // Populate form with question data
-            document.getElementById('newQuestionId').value = question.id;
-            document.getElementById('newQuestionText').value = question.question_text;
-            document.getElementById('newQuestionInputType').value = question.input_type || 'text';
-            document.getElementById('newQuestionSection').value = question.section || 'Other';
-            document.getElementById('newQuestionDefault').value = question.default || '';
-            document.getElementById('newQuestionRequired').checked = !!question.required;
-            document.getElementById('newQuestionCalculated').checked = !!question.calculated;
-            document.getElementById('newQuestionDependentOn').value = question.dependent_on || '';
-            document.getElementById('newQuestionDependentValue').value = 
-                Array.isArray(question.dependent_value) 
-                    ? question.dependent_value.join(', ') 
-                    : (question.dependent_value || '');
-            document.getElementById('newQuestionOrder').value = question.order || 999;
-            
-            // Handle options for select inputs
-            if (question.options && Array.isArray(question.options)) {
-                document.getElementById('newQuestionOptions').value = question.options.join(', ');
-                document.getElementById('optionsField').style.display = 'block';
-            } else {
-                document.getElementById('newQuestionOptions').value = '';
-                document.getElementById('optionsField').style.display = 
-                    question.input_type === 'select' ? 'block' : 'none';
-            }
-
-            // Update UI
-            document.getElementById('addQuestionButton').textContent = 'Save Changes';
-            toggleAddQuestionFormUI(true);
-        }
-
-        function updateDynamicFields(triggerQuestionId, count) {
-            const question = questions.find(q => q.id === triggerQuestionId);
-            if (!question || !question.dynamic_fields) return;
-            const config = question.dynamic_fields;
-
-            if (config.type === 'gate') {
-                dynamicFieldStructures[`${config.gate_type}Gates`] = generateGateFieldStructures(config, count);
-            } else {
-                dynamicFieldStructures.pulls = generatePullFieldStructures(config, count);
-            }
-            cleanupOrphanedAnswers(triggerQuestionId, count);
-        }
-
-        function generatePullFieldStructures(config, count) {
-            const newFields = [];
-            const template = config.template;
-            for (let i = 1; i <= count; i++) {
-                const nStr = i.toString();
-                newFields.push({
-                    id: template.id_template.replace('{n}', nStr),
-                    question_text: template.text_template.replace('{n}', nStr),
-                    input_type: template.input_type || 'number',
-                    required: template.required || false,
-                    placeholder: template.placeholder,
-                    is_dynamic_part: true,
-                    trigger_id: triggerIdFromConfig(config),
-                    order: i,
-                    style: template.style
-                });
-            }
-            console.log(`Generated ${newFields.length} pull field structures.`);
-            return newFields;
-        }
-
-        function generateGateFieldStructures(config, count) {
-            const newGateGroups = [];
-            const template = config.template;
-            const triggerId = triggerIdFromConfig(config);
-            for (let i = 1; i <= count; i++) {
-                const nStr = i.toString();
-                const currentGateFields = [];
-                (template.fields || []).forEach((fieldTmpl, index) => {
-                    currentGateFields.push({
-                        id: fieldTmpl.id_template.replace('{n}', nStr),
-                        question_text: fieldTmpl.text_template.replace('{n}', nStr),
-                        input_type: fieldTmpl.input_type || 'number',
-                        options: fieldTmpl.options, 
-                        default: fieldTmpl.default,
-                        required: fieldTmpl.required || false, 
-                        is_post_field: false,
-                        is_dynamic_part: true, 
-                        trigger_id: triggerId, 
-                        gate_number: i,
-                        order: fieldTmpl.order ?? index, 
-                        style: template.style
-                    });
-                });
-                (template.post_fields || []).forEach((fieldTmpl, index) => {
-                    currentGateFields.push({
-                        id: fieldTmpl.id_template.replace('{n}', nStr),
-                        question_text: fieldTmpl.text_template.replace('{n}', nStr),
-                        input_type: fieldTmpl.input_type || 'number',
-                        options: fieldTmpl.options, 
-                        default: fieldTmpl.default,
-                        required: fieldTmpl.required || false, 
-                        is_post_field: true,
-                        is_dynamic_part: true, 
-                        trigger_id: triggerId, 
-                        gate_number: i,
-                        order: fieldTmpl.order ?? (100 + index), 
-                        style: template.style
-                    });
-                });
-                // Sort fields within the gate group
-                currentGateFields.sort((a, b) => (a.order ?? 9999) - (b.order ?? 9999));
-                newGateGroups.push(currentGateFields);
-            }
-            console.log(`Generated ${newGateGroups.length} ${config.gate_type} gate groups structures.`);
-            return newGateGroups;
-        }
-
-        function cleanupOrphanedAnswers(triggerQuestionId, count) {
-            // Determine prefix based on trigger ID (e.g., 'numberOfPulls' -> 'pull', 'numberOfSingleGates' -> 'singleGate')
-            let prefix = triggerQuestionId.replace('numberOf', '');
-            if (prefix.endsWith('s')) prefix = prefix.slice(0, -1); // Remove trailing 's'
-            prefix = prefix.charAt(0).toLowerCase() + prefix.slice(1); // Make first letter lowercase
-
-            // Regex needs to match the prefix, the number, and then the rest of the ID
-            const regex = new RegExp(`^${prefix}(\\d+)([A-Z].*|Length)$`);
-
-            Object.keys(answers).forEach(key => {
-                const match = key.match(regex);
-                if (match && match[1]) {
-                    const fieldNumber = parseInt(match[1], 10);
-                    if (fieldNumber > count) {
-                        console.log(`Cleaning up orphaned answer: ${key}`);
-                        delete answers[key];
-                    }
-                }
-            });
-        }
-
-        function getAllQuestionsIncludingDynamic() {
-            const dynamicFields = [
-                ...dynamicFieldStructures.pulls, 
-                ...dynamicFieldStructures.singleGates.flat(),
-                ...dynamicFieldStructures.doubleGates.flat(), 
-                ...dynamicFieldStructures.slidingGates.flat()
-            ];
-            const postGroupSubQuestions = questions
-                .filter(q => q.is_post_group && q.post_group_questions)
-                .flatMap(q => q.post_group_questions);
-            
-            // Filter out group titles themselves from this flat list
-            return [...questions.filter(q => !q.is_post_group), ...postGroupSubQuestions, ...dynamicFields];
-        }
-
-        function triggerIdFromConfig(config) {
-            return config.trigger_id || config.container_id_prefix.replace('dynamic-', '');
-        }
-
-        function createAdminActionButtons(questionId, currentIndex, totalItems, sourceArray, deleteHandler, editHandler, moveHandler) {
-            const container = document.createElement('div');
-            container.className = 'action-buttons-container';
-            
-            const moveUpButton = document.createElement('button');
-            moveUpButton.type = 'button'; 
-            moveUpButton.className = 'action-button move'; 
-            moveUpButton.textContent = '⬆️'; 
-            moveUpButton.title = 'Move Up';
-            moveUpButton.disabled = currentIndex <= 0; // Use <= 0 for safety
-            moveUpButton.addEventListener('click', (e) => { 
-                e.preventDefault(); 
-                moveHandler(questionId, 'up', sourceArray); 
-            });
-            
-            const moveDownButton = document.createElement('button');
-            moveDownButton.type = 'button'; 
-            moveDownButton.className = 'action-button move'; 
-            moveDownButton.textContent = '⬇️'; 
-            moveDownButton.title = 'Move Down';
-            moveDownButton.disabled = currentIndex >= totalItems - 1; // Use >= for safety
-            moveDownButton.addEventListener('click', (e) => { 
-                e.preventDefault(); 
-                moveHandler(questionId, 'down', sourceArray); 
-            });
-            
-            const editButton = document.createElement('button');
-            editButton.type = 'button'; 
-            editButton.className = 'action-button edit'; 
-            editButton.innerHTML = '✏️<span style="font-size:0.9em;margin-left:2px;">Edit</span>'; 
-            editButton.title = 'Edit';
-            editButton.addEventListener('click', (e) => { 
-                e.preventDefault(); 
-                editHandler(questionId); 
-            });
-            
-            const deleteButton = document.createElement('button');
-            deleteButton.type = 'button'; 
-            deleteButton.className = 'action-button delete'; 
-            deleteButton.innerHTML = '🗑️<span style="font-size:0.9em;margin-left:2px;">Del</span>'; 
-            deleteButton.title = 'Delete';
-            deleteButton.addEventListener('click', (e) => { 
-                e.preventDefault(); 
-                deleteHandler(questionId); 
-            });
-            
-            container.appendChild(moveUpButton); 
-            container.appendChild(moveDownButton); 
-            container.appendChild(editButton); 
-            container.appendChild(deleteButton);
-            
-            return container;
-        }
-
-        function handleDeleteQuestion(id) {
-            const questionIndex = questions.findIndex(q => q.id === id);
-            let questionText = `Question with ID ${id}`; // Fallback text
-
-            // Find the question in main list or post groups to get text
-            const mainQuestion = questions.find(q => q.id === id);
-            let subQuestionParent = null;
-            let subQuestionIndex = -1;
-
-            if (mainQuestion) {
-                questionText = mainQuestion.question_text;
-            } else {
-                questions.forEach(group => {
-                    if (group.is_post_group && group.post_group_questions) {
-                        const idx = group.post_group_questions.findIndex(subQ => subQ.id === id);
-                        if (idx !== -1) {
-                            questionText = group.post_group_questions[idx].question_text;
-                            subQuestionParent = group;
-                            subQuestionIndex = idx;
-                        }
-                    }
-                });
-            }
-
-            if (confirm(`Are you sure you want to delete: "${questionText}"?`)) {
-                if (mainQuestion) {
-                    questions.splice(questionIndex, 1);
-                } else if (subQuestionParent && subQuestionIndex !== -1) {
-                    subQuestionParent.post_group_questions.splice(subQuestionIndex, 1);
-                } else {
-                    console.error(`Could not find question ${id} to delete.`);
-                    return; // Don't proceed if not found
-                }
-
-                delete answers[id];
-                // Cleanup dynamic fields/answers if it was a trigger question
-                const dynamicConfig = initialChainlinkFenceQuestions.find(q => q.id === id)?.dynamic_fields;
-                if (dynamicConfig) {
-                    // Clear structures and answers
-                    if (dynamicConfig.type === 'gate') {
-                        dynamicFieldStructures[`${dynamicConfig.gate_type}Gates`] = [];
-                        cleanupOrphanedAnswers(id, 0); // Remove related answers
-                    } else { // pulls
-                        dynamicFieldStructures.pulls = [];
-                        cleanupOrphanedAnswers(id, 0); // Remove related answers
-                    }
-                }
-
-                console.log(`Deleted question: ${id}`);
-                renderForm(); // Re-render
-            }
-        }
-
-        function handleMoveQuestion(itemId, direction, sourceArray) {
-            const currentIndex = sourceArray.findIndex(q => q.id === itemId);
-            if (currentIndex === -1) return;
-            const targetIndex = direction === 'up' ? currentIndex - 1 : currentIndex + 1;
-            if (targetIndex < 0 || targetIndex >= sourceArray.length) return;
-
-            const itemToMove = sourceArray[currentIndex];
-            const itemToSwapWith = sourceArray[targetIndex];
-            itemToMove.order = itemToMove.order ?? 9999;
-            itemToSwapWith.order = itemToSwapWith.order ?? 9999;
-
-            const tempOrder = itemToMove.order;
-            itemToMove.order = itemToSwapWith.order;
-            itemToSwapWith.order = tempOrder;
-            renderForm();
-        }
-
-        function handleEditQuestion(questionId) {
-            // First try to find the question in the main questions array
-            let question = questions.find(q => q.id === questionId);
-            
-            // If not found in main array, check post groups
-            if (!question) {
-                for (const group of questions) {
-                    if (group.is_post_group && group.post_group_questions) {
-                        const subQuestion = group.post_group_questions.find(sq => sq.id === questionId);
-                        if (subQuestion) {
-                            question = subQuestion;
-                            // Mark that this is a sub-question for special handling
-                            question._parentGroupId = group.id;
-                            break;
-                        }
-                    }
-                }
-            }
-            
-            if (!question) {
-                console.error(`Could not find question ${questionId} to edit.`);
-                return;
-            }
-
-            // Set the editing state
-            editingQuestionId = questionId;
-            
-            // Populate form with question data
-            document.getElementById('newQuestionId').value = question.id;
-            document.getElementById('newQuestionText').value = question.question_text;
-            document.getElementById('newQuestionInputType').value = question.input_type || 'text';
-            document.getElementById('newQuestionSection').value = question.section || 'Other';
-            document.getElementById('newQuestionDefault').value = question.default || '';
-            document.getElementById('newQuestionRequired').checked = !!question.required;
-            document.getElementById('newQuestionCalculated').checked = !!question.calculated;
-            document.getElementById('newQuestionDependentOn').value = question.dependent_on || '';
-            document.getElementById('newQuestionDependentValue').value = 
-                Array.isArray(question.dependent_value) 
-                    ? question.dependent_value.join(', ') 
-                    : (question.dependent_value || '');
-            document.getElementById('newQuestionOrder').value = question.order || 999;
-            
-            // Handle options for select inputs
-            if (question.options && Array.isArray(question.options)) {
-                document.getElementById('newQuestionOptions').value = question.options.join(', ');
-                document.getElementById('optionsField').style.display = 'block';
-            } else {
-                document.getElementById('newQuestionOptions').value = '';
-                document.getElementById('optionsField').style.display = 
-                    question.input_type === 'select' ? 'block' : 'none';
-            }
-
-            // Update UI
-            document.getElementById('addQuestionButton').textContent = 'Save Changes';
-            toggleAddQuestionFormUI(true);
         }
     </script>
 </body>
