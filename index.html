@@ -260,6 +260,97 @@
                 section: 'Basic Info',
                 order: 70
             },
+            // --- Gates Section ---
+            {
+                id: 'numberOfSingleGates',
+                question_text: 'Number of Single Gates',
+                input_type: 'number',
+                default: '0',
+                required: true,
+                section: 'Gates',
+                order: 200,
+                dynamic_fields: {
+                    type: 'gate', gate_type: 'single', container_id_prefix: 'gate-fields-single-',
+                    container_class: 'gate-fields-container', title_template: 'Single Gate {n} Specifications',
+                    grid_class: 'gate-fields-grid', item_class: 'gate-field-item',
+                    post_container_class: 'gate-posts-container', post_title_template: 'Gate {n} Post Details', post_grid_class: 'gate-fields-grid',
+                    template: {
+                        fields: [
+                            { id_template: 'singleGate{n}Width', text_template: 'Width (ft)', input_type: 'number', required: true, order: 1 },
+                            { id_template: 'singleGate{n}Height', text_template: 'Height (ft)', input_type: 'number', required: true, order: 2 },
+                            { id_template: 'singleGate{n}FrameType', text_template: 'Frame Type', input_type: 'select', options: ['1 5/8', '2'], required: true, order: 3 },
+                            { id_template: 'singleGate{n}LatchType', text_template: 'Latch Type', input_type: 'select', options: ['Fork', 'Fork Single', 'Industrial Swing'], required: true, order: 4 }
+                        ],
+                        post_fields: [
+                            { id_template: 'singleGate{n}PostDiameter', text_template: 'Post Diameter', input_type: 'select', options: ['2 3/8', '2 7/8', '4', '6 5/8'], required: true, order: 101 },
+                            { id_template: 'singleGate{n}PostThickness', text_template: 'Post Thickness', input_type: 'select', options: ['SCH 40', 'Commercial SCH 40', 'Industrial SCH 40'], required: true, order: 102 },
+                            { id_template: 'singleGate{n}PostHoleDepth', text_template: 'Post Hole Depth (in)', input_type: 'number', required: true, order: 103 },
+                            { id_template: 'singleGate{n}PostHoleWidth', text_template: 'Post Hole Width (in)', input_type: 'number', required: true, order: 104 }
+                        ],
+                        style: { labelColor: '#047857', borderColor: '#10b981', postLabelColor: '#3f6212', postBorderColor: '#84cc16' }
+                    }
+                }
+            },
+            {
+                id: 'numberOfDoubleGates',
+                question_text: 'Number of Double Gates',
+                input_type: 'number',
+                default: '0',
+                required: true,
+                section: 'Gates',
+                order: 210,
+                dynamic_fields: {
+                    type: 'gate', gate_type: 'double', container_id_prefix: 'gate-fields-double-',
+                    container_class: 'gate-fields-container', title_template: 'Double Gate {n} Specifications',
+                    grid_class: 'gate-fields-grid', item_class: 'gate-field-item',
+                    post_container_class: 'gate-posts-container', post_title_template: 'Gate {n} Post Details', post_grid_class: 'gate-fields-grid',
+                    template: {
+                        fields: [
+                            { id_template: 'doubleGate{n}Width', text_template: 'Width (ft)', input_type: 'number', required: true, order: 1 },
+                            { id_template: 'doubleGate{n}Height', text_template: 'Height (ft)', input_type: 'number', required: true, order: 2 },
+                            { id_template: 'doubleGate{n}FrameType', text_template: 'Frame Type', input_type: 'select', options: ['1 5/8', '2'], required: true, order: 3 },
+                            { id_template: 'doubleGate{n}LatchType', text_template: 'Latch Type', input_type: 'select', options: ['Fork', 'Fork Single', 'Industrial Swing'], required: true, order: 4 }
+                        ],
+                        post_fields: [
+                            { id_template: 'doubleGate{n}PostDiameter', text_template: 'Post Diameter', input_type: 'select', options: ['2 3/8', '2 7/8', '4', '6 5/8'], required: true, order: 101 },
+                            { id_template: 'doubleGate{n}PostThickness', text_template: 'Post Thickness', input_type: 'select', options: ['SCH 40', 'Commercial SCH 40', 'Industrial SCH 40'], required: true, order: 102 },
+                            { id_template: 'doubleGate{n}PostHoleDepth', text_template: 'Post Hole Depth (in)', input_type: 'number', required: true, order: 103 },
+                            { id_template: 'doubleGate{n}PostHoleWidth', text_template: 'Post Hole Width (in)', input_type: 'number', required: true, order: 104 }
+                        ],
+                        style: { labelColor: '#7e22ce', borderColor: '#a855f7', postLabelColor: '#3f6212', postBorderColor: '#84cc16' }
+                    }
+                }
+            },
+            {
+                id: 'numberOfSlidingGates',
+                question_text: 'Number of Sliding Gates',
+                input_type: 'number',
+                default: '0',
+                required: true,
+                section: 'Gates',
+                order: 220,
+                dynamic_fields: {
+                    type: 'gate', gate_type: 'sliding', container_id_prefix: 'gate-fields-sliding-',
+                    container_class: 'gate-fields-container', title_template: 'Sliding Gate {n} Specifications',
+                    grid_class: 'gate-fields-grid', item_class: 'gate-field-item',
+                    post_container_class: 'gate-posts-container', post_title_template: 'Gate {n} Post Details', post_grid_class: 'gate-fields-grid',
+                    template: {
+                        fields: [
+                            { id_template: 'slidingGate{n}Width', text_template: 'Width (ft)', input_type: 'number', required: true, order: 1 },
+                            { id_template: 'slidingGate{n}Height', text_template: 'Height (ft)', input_type: 'number', required: true, order: 2 },
+                            { id_template: 'slidingGate{n}FrameType', text_template: 'Frame Type', input_type: 'select', options: ['1 5/8', '2'], required: true, order: 3 },
+                            { id_template: 'slidingGate{n}TrackType', text_template: 'Track Type', input_type: 'select', options: ['V-Track', 'Cantilever'], required: true, order: 4 }
+                        ],
+                        post_fields: [
+                            { id_template: 'slidingGate{n}PostDiameter', text_template: 'Post Diameter', input_type: 'select', options: ['2 3/8', '2 7/8', '4', '6 5/8'], required: true, order: 101 },
+                            { id_template: 'slidingGate{n}PostThickness', text_template: 'Post Thickness', input_type: 'select', options: ['SCH 40', 'Commercial SCH 40', 'Industrial SCH 40'], required: true, order: 102 },
+                            { id_template: 'slidingGate{n}PostHoleDepth', text_template: 'Post Hole Depth (in)', input_type: 'number', required: true, order: 103 },
+                            { id_template: 'slidingGate{n}PostHoleWidth', text_template: 'Post Hole Width (in)', input_type: 'number', required: true, order: 104 }
+                        ],
+                        style: { labelColor: '#b45309', borderColor: '#f59e0b', postLabelColor: '#3f6212', postBorderColor: '#84cc16' }
+                    }
+                }
+            },
             // --- Posts Section ---
             {
                 id: 'useFlangedPosts',
@@ -331,97 +422,6 @@
                     { id: 'flangedPostOffCenteredHoleWidth', question_text: 'Hole Width (in)', input_type: 'number', required: true, order: 5 }
                 ]
             },
-            // --- Gates Section ---
-            {
-                id: 'numberOfSingleGates',
-                question_text: 'Number of Single Gates',
-                input_type: 'number',
-                default: '0',
-                required: true,
-                section: 'Gates',
-                order: 200,
-                dynamic_fields: {
-                    type: 'gate', gate_type: 'single', container_id_prefix: 'gate-fields-single-',
-                    container_class: 'gate-fields-container', title_template: 'Single Gate {n} Specifications',
-                    grid_class: 'gate-fields-grid', item_class: 'gate-field-item',
-                    post_container_class: 'gate-posts-container', post_title_template: 'Gate {n} Post Details', post_grid_class: 'gate-fields-grid',
-                    template: {
-                        fields: [
-                            { id_template: 'singleGate{n}Width', text_template: 'Width (ft)', input_type: 'number', required: true, order: 1 },
-                            { id_template: 'singleGate{n}Height', text_template: 'Height (ft)', input_type: 'number', required: true, order: 2 },
-                            { id_template: 'singleGate{n}FrameType', text_template: 'Frame Type', input_type: 'select', options: ['1 5/8', '2'], required: true, order: 3 },
-                            { id_template: 'singleGate{n}LatchType', text_template: 'Latch Type', input_type: 'select', options: ['Fork', 'Fork Single', 'Industrial Swing'], required: true, order: 4 }
-                        ],
-                        post_fields: [
-                            { id_template: 'singleGate{n}PostDiameter', text_template: 'Post Diameter', input_type: 'select', options: ['2 3/8', '2 7/8', '4', '6 5/8'], required: true, order: 101 },
-                            { id_template: 'singleGate{n}PostThickness', text_template: 'Post Thickness', input_type: 'select', options: ['SCH 40', 'Commercial SCH 40', 'Industrial SCH 40'], required: true, order: 102 },
-                            { id_template: 'singleGate{n}PostHoleDepth', text_template: 'Post Hole Depth (in)', input_type: 'number', required: true, order: 103 },
-                            { id_template: 'singleGate{n}PostHoleWidth', text_template: 'Post Hole Width (in)', input_type: 'number', required: true, order: 104 }
-                        ],
-                        style: { labelColor: '#047857', borderColor: '#10b981', postLabelColor: '#3f6212', postBorderColor: '#84cc16' }
-                    }
-                }
-            },
-            {
-                id: 'numberOfDoubleGates',
-                question_text: 'Number of Double Gates',
-                input_type: 'number',
-                default: '0',
-                required: true,
-                section: 'Gates',
-                order: 210,
-                dynamic_fields: {
-                    type: 'gate', gate_type: 'double', container_id_prefix: 'gate-fields-double-',
-                    container_class: 'gate-fields-container', title_template: 'Double Gate {n} Specifications',
-                    grid_class: 'gate-fields-grid', item_class: 'gate-field-item',
-                    post_container_class: 'gate-posts-container', post_title_template: 'Gate {n} Post Details', post_grid_class: 'gate-fields-grid',
-                     template: {
-                        fields: [
-                            { id_template: 'doubleGate{n}Width', text_template: 'Width (ft)', input_type: 'number', required: true, order: 1 },
-                            { id_template: 'doubleGate{n}Height', text_template: 'Height (ft)', input_type: 'number', required: true, order: 2 },
-                            { id_template: 'doubleGate{n}FrameType', text_template: 'Frame Type', input_type: 'select', options: ['1 5/8', '2'], required: true, order: 3 },
-                            { id_template: 'doubleGate{n}LatchType', text_template: 'Latch Type', input_type: 'select', options: ['Drop Rod', 'Cane Bolt'], required: true, order: 4 }
-                        ],
-                         post_fields: [
-                            { id_template: 'doubleGate{n}PostDiameter', text_template: 'Post Diameter', input_type: 'select', options: ['2 3/8', '2 7/8', '4', '6 5/8'], required: true, order: 101 },
-                            { id_template: 'doubleGate{n}PostThickness', text_template: 'Post Thickness', input_type: 'select', options: ['SCH 40', 'Commercial SCH 40', 'Industrial SCH 40'], required: true, order: 102 },
-                            { id_template: 'doubleGate{n}PostHoleDepth', text_template: 'Post Hole Depth (in)', input_type: 'number', required: true, order: 103 },
-                            { id_template: 'doubleGate{n}PostHoleWidth', text_template: 'Post Hole Width (in)', input_type: 'number', required: true, order: 104 }
-                        ],
-                         style: { labelColor: '#047857', borderColor: '#10b981', postLabelColor: '#3f6212', postBorderColor: '#84cc16' }
-                    }
-                }
-            },
-            {
-                id: 'numberOfSlidingGates',
-                question_text: 'Number of Sliding Gates',
-                input_type: 'number',
-                default: '0',
-                required: true,
-                section: 'Gates',
-                order: 220,
-                 dynamic_fields: {
-                    type: 'gate', gate_type: 'sliding', container_id_prefix: 'gate-fields-sliding-',
-                    container_class: 'gate-fields-container', title_template: 'Sliding Gate {n} Specifications',
-                    grid_class: 'gate-fields-grid', item_class: 'gate-field-item',
-                    post_container_class: 'gate-posts-container', post_title_template: 'Gate {n} Post Details', post_grid_class: 'gate-fields-grid',
-                     template: {
-                        fields: [
-                            { id_template: 'slidingGate{n}Width', text_template: 'Width (ft)', input_type: 'number', required: true, order: 1 },
-                            { id_template: 'slidingGate{n}Height', text_template: 'Height (ft)', input_type: 'number', required: true, order: 2 },
-                            { id_template: 'slidingGate{n}FrameType', text_template: 'Frame Type', input_type: 'select', options: ['1 5/8', '2'], required: true, order: 3 },
-                            { id_template: 'slidingGate{n}Operator', text_template: 'Operator', input_type: 'select', options: ['Manual', 'Automatic'], required: true, order: 4 }
-                        ],
-                         post_fields: [
-                            { id_template: 'slidingGate{n}PostDiameter', text_template: 'Post Diameter', input_type: 'select', options: ['2 3/8', '2 7/8', '4', '6 5/8'], required: true, order: 101 },
-                            { id_template: 'slidingGate{n}PostThickness', text_template: 'Post Thickness', input_type: 'select', options: ['SCH 40', 'Commercial SCH 40', 'Industrial SCH 40'], required: true, order: 102 },
-                            { id_template: 'slidingGate{n}PostHoleDepth', text_template: 'Post Hole Depth (in)', input_type: 'number', required: true, order: 103 },
-                            { id_template: 'slidingGate{n}PostHoleWidth', text_template: 'Post Hole Width (in)', input_type: 'number', required: true, order: 104 }
-                        ],
-                         style: { labelColor: '#047857', borderColor: '#10b981', postLabelColor: '#3f6212', postBorderColor: '#84cc16' }
-                    }
-                }
-            },
             // --- Line Posts Section ---
             {
                 id: 'linePostSpacing',
@@ -439,110 +439,99 @@
                 section: 'Line Posts',
                 order: 310,
                 post_group_questions: [
-                    { id: 'numLinePosts', question_text: 'Number of Posts', input_type: 'number', required: true, calculated: true, order: 1 }, // Calculated
-                    { id: 'linePostDiameter', question_text: 'Diameter', input_type: 'select', options: ['1 5/8', '1 7/8', '2 3/8', '2 7/8'], required: true, order: 2 },
+                    { id: 'numLinePosts', question_text: 'Number of Posts', input_type: 'number', required: true, calculated: true, order: 1 },
+                    { id: 'linePostDiameter', question_text: 'Diameter', input_type: 'select', options: ['1 5/8', '2', '2 3/8', '2 7/8'], required: true, order: 2 },
                     { id: 'linePostThickness', question_text: 'Thickness', input_type: 'select', options: ['SCH 20', 'SCH 40', 'Commercial SCH 40'], required: true, order: 3 },
                     { id: 'linePostHoleDepth', question_text: 'Hole Depth (in)', input_type: 'number', required: true, order: 4 },
                     { id: 'linePostHoleWidth', question_text: 'Hole Width (in)', input_type: 'number', required: true, order: 5 }
                 ]
             },
-
             // --- Extra Options Section ---
             {
-                id: 'includeTopRail',
-                question_text: 'Include Top Rail?',
+                id: 'topRail',
+                question_text: 'Top Rail',
                 input_type: 'select',
-                options: ['Yes', 'No'],
-                default: 'Yes',
+                options: ['1 5/8', '1 5/8 Heavy Wall'],
+                default: '1 5/8',
                 required: true,
                 section: 'Extra Options',
                 order: 400
             },
             {
-                id: 'includeMidRail',
-                question_text: 'Include Mid Rail?',
+                id: 'midRail',
+                question_text: 'Mid Rail',
                 input_type: 'select',
-                options: ['Yes', 'No'],
-                default: 'No',
+                options: ['None', '1 5/8', '1 5/8 Heavy Wall'],
+                default: 'None',
                 required: true,
                 section: 'Extra Options',
                 order: 410
             },
             {
-                id: 'includeBottomRail',
-                question_text: 'Include Bottom Rail?',
+                id: 'bottomRail',
+                question_text: 'Bottom Rail',
                 input_type: 'select',
-                options: ['Yes', 'No'],
-                default: 'No',
+                options: ['None', '1 5/8', '1 5/8 Heavy Wall'],
+                default: 'None',
                 required: true,
                 section: 'Extra Options',
                 order: 420
             },
             {
-                id: 'includeBarbedWire',
-                question_text: 'Include Barbed Wire?',
+                id: 'barbedWire',
+                question_text: 'Barbed Wire',
                 input_type: 'select',
-                options: ['Yes', 'No'],
-                default: 'No',
+                options: ['None', '3 Strand', '6 Strand'],
+                default: 'None',
                 required: true,
                 section: 'Extra Options',
                 order: 430
             },
             {
-                id: 'numBarbedWireStrands',
-                question_text: 'Number of Barbed Wire Strands',
+                id: 'barbedWireType',
+                question_text: 'Barbed Wire Type',
                 input_type: 'select',
-                options: ['1', '2', '3'],
-                default: '3',
+                options: ['2pt Galv', '4pt Galv', '2pt Black', '4pt Black'],
+                default: '2pt Galv',
                 required: true,
                 section: 'Extra Options',
                 order: 440,
-                dependent_on: 'includeBarbedWire', // Dependency
-                dependent_value: 'Yes'            // Dependency
+                dependent_on: 'barbedWire',
+                dependent_value: ['3 Strand', '6 Strand']
             },
             {
-                id: 'includeTensionWire',
-                question_text: 'Include Tension Wire?',
+                id: 'barbedWireArms',
+                question_text: 'Barbed Wire Arms',
                 input_type: 'select',
-                options: ['Yes', 'No'],
-                default: 'Yes',
+                options: ['Straight', '45° In', '45° Out', 'Vertical'],
+                default: 'Straight',
                 required: true,
                 section: 'Extra Options',
-                order: 450
+                order: 450,
+                dependent_on: 'barbedWire',
+                dependent_value: ['3 Strand', '6 Strand']
             },
             {
-                id: 'includePrivacySlats',
-                question_text: 'Include Privacy Slats?',
+                id: 'privacySlats',
+                question_text: 'Privacy Slats',
                 input_type: 'select',
-                options: ['Yes', 'No'],
-                default: 'No',
+                options: ['None', 'PVC', 'Aluminum'],
+                default: 'None',
                 required: true,
                 section: 'Extra Options',
                 order: 460
             },
             {
-                id: 'privacySlatsType',
-                question_text: 'Privacy Slat Type',
+                id: 'privacySlatsColor',
+                question_text: 'Privacy Slats Color',
                 input_type: 'select',
-                options: ['Standard', 'Heavy Duty', 'Extra Heavy Duty'],
-                default: 'Standard',
+                options: ['White', 'Green', 'Brown', 'Black', 'Beige', 'Gray', 'Redwood'],
+                default: 'Green',
                 required: true,
                 section: 'Extra Options',
                 order: 470,
-                dependent_on: 'includePrivacySlats', // Dependency
-                dependent_value: 'Yes'              // Dependency
-            },
-            {
-                id: 'privacySlatsColor',
-                question_text: 'Privacy Slat Color',
-                input_type: 'select',
-                options: ['Black', 'Brown', 'Green', 'White', 'Beige'],
-                default: 'Black',
-                required: true,
-                section: 'Extra Options',
-                order: 480,
-                dependent_on: 'includePrivacySlats', // Dependency
-                dependent_value: 'Yes'              // Dependency
+                dependent_on: 'privacySlats',
+                dependent_value: ['PVC', 'Aluminum']
             }
         ];
 
