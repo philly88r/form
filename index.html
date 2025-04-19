@@ -1,57 +1,319 @@
-// --- Add Event Listener in DOMContentLoaded ---
-document.addEventListener('DOMContentLoaded', function() {
-    // ... other listeners ...
-    document.getElementById('downloadFormButton').addEventListener('click', downloadFormHtmlCss); // Add listener
-    // ... rest of init ...
-});
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chainlink Fence Calculator</title>
+    <style>
+        /* ... (keep all existing styles from the previous version) ... */
 
+        /* Add styles for arrow buttons */
+        .action-button.move {
+            color: #6b7280; /* Neutral color */
+            font-size: 1.2em; /* Make arrows slightly larger */
+            line-height: 1;
+            padding: 1px 4px; /* Adjust padding */
+            vertical-align: middle;
+        }
+        .action-button.move:hover:not(:disabled) {
+            background-color: #e5e7eb;
+            color: #374151;
+        }
+        .action-button:disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
+        }
+        .action-buttons-container {
+            /* Ensure enough space for all buttons */
+            white-space: nowrap;
+             margin-left: auto; /* Push buttons to the right in flex container */
+             padding-left: 10px; /* Space between label/input and buttons */
+        }
 
-// --- NEW Download Function ---
-function downloadFormHtmlCss() {
-    console.log('Preparing form HTML/CSS for download...');
+        /* Style for calculated fields */
+        .input-field.calculated-field {
+            background-color: #e5e7eb; /* Light gray background */
+            color: #4b5563; /* Darker text */
+            cursor: not-allowed;
+            font-weight: bold;
+        }
 
-    if (!isAdminMode) {
-        alert('Please enter Admin Mode first to access download.');
-        return;
-    }
+         /* Ensure editable labels handle buttons correctly */
+         .editable-label {
+            display: flex;
+            align-items: center;
+            margin-bottom: 8px;
+            flex-wrap: nowrap; /* Prevent wrapping by default */
+        }
+         .editable-label > span:first-child,
+         .editable-label > label:first-child,
+         .editable-label > input:first-child {
+             flex-grow: 1; /* Label/Input takes space */
+             margin-right: 5px; /* Minimal space before buttons */
+             min-width: 100px; /* Prevent label collapsing too much */
+         }
+         .post-group-title {
+              display: flex; /* Make title container flex */
+              align-items: center;
+              justify-content: space-between; /* Push buttons to the end */
+         }
+          .post-group-title .action-buttons-container {
+              margin-left: 10px; /* Space before buttons */
+              flex-shrink: 0; /* Prevent buttons shrinking */
+          }
+           .post-field-item .editable-label .action-buttons-container {
+               margin-left: 5px; /* Smaller margin for sub-field buttons */
+           }
 
-    // 1. Temporarily hide admin controls for clean HTML capture
-    const originalAdminMode = isAdminMode;
-    isAdminMode = false; // Set mode to non-admin
-    renderForm(); // Re-render WITHOUT admin buttons/edit inputs
-    updateCalculatedFieldDisplay(); // Ensure calculated fields are up-to-date in the non-admin view
+    </style>
+</head>
+<body>
+    <!-- ... (keep existing HTML structure: form-container, admin panel, form) ... -->
+     <div class="form-container" id="fenceCalculator">
+        <h2 class="form-title">Chainlink Fence Calculator</h2>
 
-    // 2. Capture the clean form HTML
-    const formContainer = document.getElementById('fenceCalculator');
-    // Exclude the admin toggle button and the admin panel itself from the download
-    const adminToggleButton = document.getElementById('toggleEditorMode');
-    const adminPanelElement = document.getElementById('adminPanel');
-    const originalToggleDisplay = adminToggleButton.style.display;
-    const originalPanelDisplay = adminPanelElement.style.display;
-    adminToggleButton.style.display = 'none'; // Hide button
-    adminPanelElement.style.display = 'none'; // Hide panel
-    const cleanFormHtml = formContainer.innerHTML; // Get HTML of container content
-    adminToggleButton.style.display = originalToggleDisplay; // Restore button display
-    adminPanelElement.style.display = originalPanelDisplay; // Restore panel display
+        <button id="toggleEditorMode" class="admin-button" style="margin-bottom: 20px;">
+            Enter Editor Mode
+        </button>
 
+        <div id="adminPanel" class="admin-controls-container" style="display: none;">
+             <h3 class="admin-controls-title">Form Editor</h3>
+             <button id="toggleAddQuestionForm" class="admin-button primary">
+                 Add New Question
+             </button>
+             
+             <!-- Add Download Button -->
+             <button id="downloadFormButton" class="admin-button" style="background-color: #3b82f6; margin-left: 10px;">
+                 Download Form HTML/CSS
+             </button>
 
-    // 3. Restore admin mode and re-render
-    isAdminMode = originalAdminMode; // Set mode back
-    renderForm(); // Re-render WITH admin controls
-    updateCalculatedFieldDisplay(); // Update calculated fields in admin view
+             <div id="addQuestionForm" class="add-question-form" style="display: none;">
+                 <h4>Add New Question</h4>
+                 <div class="question-form-field">
+                     <label class="label">Question ID (unique identifier)<span class="required-indicator">*</span></label>
+                     <input id="newQuestionId" type="text" class="input-field" placeholder="E.g., fenceHeight">
+                 </div>
 
+                 <div class="question-form-field">
+                     <label class="label">Question Text<span class="required-indicator">*</span></label>
+                     <input id="newQuestionText" type="text" class="input-field" placeholder="E.g., What is the fence height?">
+                 </div>
 
-    // 4. Get CSS content
-    let cssContent = '';
-    const styleElement = document.querySelector('style');
-    if (styleElement) {
-        cssContent = styleElement.textContent || styleElement.innerText;
-    } else {
-        console.warn('Could not find <style> tag to extract CSS.');
-    }
+                 <div class="question-form-field">
+                     <label class="label">Input Type</label>
+                     <select id="newQuestionInputType" class="select-dropdown">
+                         <option value="text">Text</option>
+                         <option value="number">Number</option>
+                         <option value="select">Select (Dropdown)</option>
+                     </select>
+                 </div>
 
-    // 5. Create complete HTML content for download
-    const fullHtmlContent = `<!DOCTYPE html>
+                 <div id="optionsField" class="question-form-field" style="display: none;">
+                     <label class="label">Options (comma-separated)<span class="required-indicator">*</span></label>
+                     <input id="newQuestionOptions" type="text" class="input-field" placeholder="E.g., Option 1, Option 2, Option 3">
+                 </div>
+
+                 <div class="question-form-field">
+                     <label class="label">Section</label>
+                     <select id="newQuestionSection" class="select-dropdown">
+                         <!-- Dynamically populate sections later? Or keep static list -->
+                         <option value="Basic Info">Basic Info</option>
+                         <option value="Posts">Posts</option>
+                         <option value="Gates">Gates</option>
+                         <option value="Line Posts">Line Posts</option>
+                         <option value="Extra Options">Extra Options</option>
+                         <option value="Other">Other</option>
+                     </select>
+                 </div>
+
+                 <div class="question-form-field">
+                     <label class="label">Default Value (optional)</label>
+                     <input id="newQuestionDefault" type="text" class="input-field" placeholder="Default value (if any)">
+                 </div>
+
+                 <div class="question-form-field">
+                     <label class="label" style="display: inline-flex; align-items: center;">
+                         <input id="newQuestionRequired" type="checkbox" style="margin-right: 8px; transform: scale(1.1);">
+                         Required Field
+                     </label>
+                 </div>
+
+                 <div class="question-form-field">
+                    <label class="label">
+                        <input id="newQuestionCalculated" type="checkbox" style="margin-right: 8px; transform: scale(1.1);">
+                        Calculated Field (Read-Only)
+                    </label>
+                </div>
+
+                 <div class="question-form-field">
+                    <label class="label">Dependency: Only show if Question ID</label>
+                    <input id="newQuestionDependentOn" type="text" class="input-field" placeholder="e.g., includeBarbedWire">
+                </div>
+                <div class="question-form-field">
+                    <label class="label">Has the value</label>
+                    <input id="newQuestionDependentValue" type="text" class="input-field" placeholder="e.g., Yes">
+                </div>
+
+                 <div class="question-form-field">
+                     <label class="label">Display Order</label>
+                     <input id="newQuestionOrder" type="number" value="999" class="input-field">
+                 </div>
+
+                 <button id="addQuestionButton" class="admin-button success">
+                     Add Question
+                 </button>
+                  <button id="cancelAddQuestionButton" type="button" class="admin-button" style="background-color: #6b7280;">
+                     Cancel
+                 </button>
+             </div>
+         </div>
+
+        <form id="fenceCalculatorForm">
+            <div id="formSections"></div>
+            <button type="submit" class="submit-button">Calculate Material List / Cost</button>
+        </form>
+    </div>
+
+    <script>
+        // --- Configuration ---
+        const initialChainlinkFenceQuestions = [
+            // --- Basic Info Section ---
+            {
+                id: 'numberOfPulls',
+                question_text: 'Number of Fence Pulls/Sections',
+                input_type: 'number',
+                default: '2',
+                required: true,
+                section: 'Basic Info',
+                order: 10,
+                dynamic_fields: {
+                    container_id_prefix: 'dynamic-pulls-',
+                    container_class: 'dynamic-fields-container',
+                    title: 'Fence Pull/Section Lengths',
+                    grid_class: 'dynamic-fields-grid',
+                    item_class: 'dynamic-field-item',
+                    template: {
+                        id_template: 'pull{n}Length',
+                        text_template: 'Length of Pull/Section {n} (ft)',
+                        input_type: 'number',
+                        placeholder: 'Enter length',
+                        required: true,
+                        style: { labelColor: '#1e40af', borderColor: '#3b82f6' }
+                    }
+                }
+            },
+            {
+                id: 'totalFootage',
+                question_text: 'Total Linear Length (ft)',
+                input_type: 'number',
+                required: true,
+                calculated: true, // Mark as calculated
+                section: 'Basic Info',
+                order: 20
+            },
+            {
+                id: 'fenceHeight',
+                question_text: 'Height of Fence (ft)',
+                input_type: 'number', // Changed to number
+                default: '4',
+                required: true,
+                section: 'Basic Info',
+                order: 30
+            },
+            {
+                id: 'commercialOrResidential',
+                question_text: 'Project Type',
+                input_type: 'select',
+                options: ['Commercial', 'Residential'],
+                default: 'Commercial',
+                required: true,
+                section: 'Basic Info',
+                order: 40
+            },
+            {
+                id: 'fenceMaterial',
+                question_text: 'Fence Material Color',
+                input_type: 'select',
+                options: ['Galv', 'Black'],
+                default: 'Galv',
+                required: true,
+                section: 'Basic Info',
+                order: 50
+            },
+            // ... rest of the configuration ...
+        ];
+
+        // --- State Variables ---
+        let questions = JSON.parse(JSON.stringify(initialChainlinkFenceQuestions));
+        let isAdminMode = false;
+        let editingQuestionId = null;
+        let showAddQuestionForm = false;
+        let answers = {};
+        let dynamicFieldStructures = { pulls: [], singleGates: [], doubleGates: [], slidingGates: [] };
+
+        // --- Initialization ---
+        document.addEventListener('DOMContentLoaded', function() {
+            document.getElementById('toggleEditorMode').addEventListener('click', toggleEditorMode);
+            document.getElementById('toggleAddQuestionForm').addEventListener('click', toggleAddQuestionFormUI);
+            document.getElementById('addQuestionButton').addEventListener('click', handleAddQuestion);
+            document.getElementById('cancelAddQuestionButton').addEventListener('click', () => toggleAddQuestionFormUI(false));
+            document.getElementById('newQuestionInputType').addEventListener('change', toggleOptionsField);
+            document.getElementById('newQuestionCalculated').addEventListener('change', toggleCalculatedFieldOptions);
+            document.getElementById('fenceCalculatorForm').addEventListener('submit', handleFormSubmit);
+            document.getElementById('downloadFormButton').addEventListener('click', downloadFormHtmlCss); // Add download button listener
+
+            initializeFormState();
+            renderForm();
+            recalculateAndUpdateFields(); // Perform initial calculation
+        });
+
+        // --- Core Functions ---
+        // ... all your existing functions ...
+
+        // --- NEW Download Function ---
+        function downloadFormHtmlCss() {
+            console.log('Preparing form HTML/CSS for download...');
+
+            if (!isAdminMode) {
+                alert('Please enter Admin Mode first to access download.');
+                return;
+            }
+
+            // 1. Temporarily hide admin controls for clean HTML capture
+            const originalAdminMode = isAdminMode;
+            isAdminMode = false; // Set mode to non-admin
+            renderForm(); // Re-render WITHOUT admin buttons/edit inputs
+            updateCalculatedFieldDisplay(); // Ensure calculated fields are up-to-date in the non-admin view
+
+            // 2. Capture the clean form HTML
+            const formContainer = document.getElementById('fenceCalculator');
+            // Exclude the admin toggle button and the admin panel itself from the download
+            const adminToggleButton = document.getElementById('toggleEditorMode');
+            const adminPanelElement = document.getElementById('adminPanel');
+            const originalToggleDisplay = adminToggleButton.style.display;
+            const originalPanelDisplay = adminPanelElement.style.display;
+            adminToggleButton.style.display = 'none'; // Hide button
+            adminPanelElement.style.display = 'none'; // Hide panel
+            const cleanFormHtml = formContainer.innerHTML; // Get HTML of container content
+            adminToggleButton.style.display = originalToggleDisplay; // Restore button display
+            adminPanelElement.style.display = originalPanelDisplay; // Restore panel display
+
+            // 3. Restore admin mode and re-render
+            isAdminMode = originalAdminMode; // Set mode back
+            renderForm(); // Re-render WITH admin controls
+            updateCalculatedFieldDisplay(); // Update calculated fields in admin view
+
+            // 4. Get CSS content
+            let cssContent = '';
+            const styleElement = document.querySelector('style');
+            if (styleElement) {
+                cssContent = styleElement.textContent || styleElement.innerText;
+            } else {
+                console.warn('Could not find <style> tag to extract CSS.');
+            }
+
+            // 5. Create complete HTML content for download
+            const fullHtmlContent = `<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -75,16 +337,99 @@ ${cssContent}
 </body>
 </html>`;
 
-    // 6. Create blob and trigger download
-    const blob = new Blob([fullHtmlContent], { type: 'text/html' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = 'fence_calculator_form.html'; // Filename
-    document.body.appendChild(a); // Required for Firefox
-    a.click();
-    document.body.removeChild(a);
-    URL.revokeObjectURL(url); // Clean up
+            // 6. Create blob and trigger download
+            const blob = new Blob([fullHtmlContent], { type: 'text/html' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'fence_calculator_form.html'; // Filename
+            document.body.appendChild(a); // Required for Firefox
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url); // Clean up
 
-    console.log('Download initiated.');
-}
+            console.log('Download initiated.');
+        }
+
+        // Add all your other functions here
+        function initializeFormState() {
+            console.log('Initializing form state...');
+            answers = {};
+            dynamicFieldStructures = { pulls: [], singleGates: [], doubleGates: [], slidingGates: [] };
+
+            let maxOrder = 0;
+            const assignOrder = (item) => {
+                if (item.order === undefined || item.order === null) {
+                    item.order = 9999;
+                }
+                if (!isNaN(item.order) && item.order > maxOrder) maxOrder = item.order;
+            };
+
+            questions.forEach(q => {
+                assignOrder(q);
+                if (q.is_post_group && q.post_group_questions) {
+                    q.post_group_questions.forEach(assignOrder);
+                }
+            });
+
+            questions.forEach(q => {
+                if (q.default !== undefined) {
+                    answers[q.id] = q.default;
+                }
+                if (q.dynamic_fields) {
+                    const count = parseInt(answers[q.id] || '0', 10);
+                    if (!isNaN(count) && count >= 0) { // Allow 0 count
+                        updateDynamicFields(q.id, count);
+                    }
+                }
+                // Init answers for post group sub-questions
+                if (q.is_post_group && q.post_group_questions) {
+                    q.post_group_questions.forEach(subQ => {
+                        if (subQ.default !== undefined) {
+                            answers[subQ.id] = subQ.default;
+                        }
+                    });
+                }
+            });
+
+            // Recalculate after defaults are set
+            recalculateAndUpdateFields();
+            console.log('Initial answers:', answers);
+        }
+
+        function renderForm() {
+            // Your existing renderForm function
+        }
+
+        function handleChange(id, value) {
+            // Your existing handleChange function
+        }
+
+        function recalculateAndUpdateFields() {
+            // Your existing recalculateAndUpdateFields function
+        }
+
+        function updateCalculatedFieldDisplay(specificId = null) {
+            // Your existing updateCalculatedFieldDisplay function
+        }
+
+        function handleFormSubmit(event) {
+            // Your existing handleFormSubmit function
+        }
+
+        function toggleEditorMode() {
+            // Your existing toggleEditorMode function
+        }
+
+        function toggleOptionsField() {
+            // Your existing toggleOptionsField function
+        }
+
+        function toggleCalculatedFieldOptions() {
+            // Your existing toggleCalculatedFieldOptions function
+        }
+
+        // Include all other necessary functions
+    </script>
+</body>
+</html>
