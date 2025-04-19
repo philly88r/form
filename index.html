@@ -927,9 +927,11 @@ ${cssContent}
 
             // Check if we're editing an existing question or adding a new one
             if (editingQuestionId) {
-                // Editing existing question
-                const questionIndex = questions.findIndex(q => q.id === editingQuestionId);
+                // First try to find the question in the main questions array
+                let questionIndex = questions.findIndex(q => q.id === editingQuestionId);
+                
                 if (questionIndex !== -1) {
+                    // Found in main questions array
                     // If the ID has changed, make sure it's not a duplicate
                     if (id !== editingQuestionId && questions.some(q => q.id === id)) {
                         alert('A question with this ID already exists. Please use a unique ID.');
@@ -949,13 +951,45 @@ ${cssContent}
                     // Replace the question
                     questions[questionIndex] = questionData;
                     console.log('Updated question:', questionData);
+                } else {
+                    // Not found in main array, check post groups
+                    let found = false;
+                    for (const group of questions) {
+                        if (group.is_post_group && group.post_group_questions) {
+                            const subQuestionIndex = group.post_group_questions.findIndex(sq => sq.id === editingQuestionId);
+                            if (subQuestionIndex !== -1) {
+                                // If the ID has changed, make sure it's not a duplicate
+                                if (id !== editingQuestionId) {
+                                    // Check for duplicates in all questions
+                                    const allQuestions = getAllQuestionsIncludingDynamic();
+                                    if (allQuestions.some(q => q.id === id)) {
+                                        alert('A question with this ID already exists. Please use a unique ID.');
+                                        return;
+                                    }
+                                }
+                                
+                                // Update the sub-question
+                                group.post_group_questions[subQuestionIndex] = questionData;
+                                console.log('Updated sub-question:', questionData);
+                                found = true;
+                                break;
+                            }
+                        }
+                    }
+                    
+                    if (!found) {
+                        console.error(`Could not find question ${editingQuestionId} to update.`);
+                    }
                 }
+                
                 // Reset editing state
                 editingQuestionId = null;
+                document.getElementById('addQuestionButton').textContent = 'Add Question';
             } else {
                 // Adding new question
-                // Check for duplicate IDs
-                if (questions.some(q => q.id === id)) {
+                // Check for duplicate IDs in all questions
+                const allQuestions = getAllQuestionsIncludingDynamic();
+                if (allQuestions.some(q => q.id === id)) {
                     alert('A question with this ID already exists. Please use a unique ID.');
                     return;
                 }
@@ -966,6 +1000,63 @@ ${cssContent}
             
             toggleAddQuestionFormUI(false);
             renderForm();
+        }
+
+        function handleEditQuestion(questionId) {
+            // First try to find the question in the main questions array
+            let question = questions.find(q => q.id === questionId);
+            
+            // If not found in main array, check post groups
+            if (!question) {
+                for (const group of questions) {
+                    if (group.is_post_group && group.post_group_questions) {
+                        const subQuestion = group.post_group_questions.find(sq => sq.id === questionId);
+                        if (subQuestion) {
+                            question = subQuestion;
+                            // Mark that this is a sub-question for special handling
+                            question._parentGroupId = group.id;
+                            break;
+                        }
+                    }
+                }
+            }
+            
+            if (!question) {
+                console.error(`Could not find question ${questionId} to edit.`);
+                return;
+            }
+
+            // Set the editing state
+            editingQuestionId = questionId;
+            
+            // Populate form with question data
+            document.getElementById('newQuestionId').value = question.id;
+            document.getElementById('newQuestionText').value = question.question_text;
+            document.getElementById('newQuestionInputType').value = question.input_type || 'text';
+            document.getElementById('newQuestionSection').value = question.section || 'Other';
+            document.getElementById('newQuestionDefault').value = question.default || '';
+            document.getElementById('newQuestionRequired').checked = !!question.required;
+            document.getElementById('newQuestionCalculated').checked = !!question.calculated;
+            document.getElementById('newQuestionDependentOn').value = question.dependent_on || '';
+            document.getElementById('newQuestionDependentValue').value = 
+                Array.isArray(question.dependent_value) 
+                    ? question.dependent_value.join(', ') 
+                    : (question.dependent_value || '');
+            document.getElementById('newQuestionOrder').value = question.order || 999;
+            
+            // Handle options for select inputs
+            if (question.options && Array.isArray(question.options)) {
+                document.getElementById('newQuestionOptions').value = question.options.join(', ');
+                document.getElementById('optionsField').style.display = 'block';
+            } else {
+                document.getElementById('newQuestionOptions').value = '';
+                document.getElementById('optionsField').style.display = 
+                    question.input_type === 'select' ? 'block' : 'none';
+            }
+
+            // Update UI
+            document.getElementById('addQuestionButton').textContent = 'Save Changes';
+            toggleAddQuestionFormUI(true);
         }
 
         function updateDynamicFields(triggerQuestionId, count) {
@@ -1214,25 +1305,59 @@ ${cssContent}
         }
 
         function handleEditQuestion(questionId) {
-            const question = questions.find(q => q.id === questionId);
+            // First try to find the question in the main questions array
+            let question = questions.find(q => q.id === questionId);
+            
+            // If not found in main array, check post groups
+            if (!question) {
+                for (const group of questions) {
+                    if (group.is_post_group && group.post_group_questions) {
+                        const subQuestion = group.post_group_questions.find(sq => sq.id === questionId);
+                        if (subQuestion) {
+                            question = subQuestion;
+                            // Mark that this is a sub-question for special handling
+                            question._parentGroupId = group.id;
+                            break;
+                        }
+                    }
+                }
+            }
+            
             if (!question) {
                 console.error(`Could not find question ${questionId} to edit.`);
                 return;
             }
 
+            // Set the editing state
             editingQuestionId = questionId;
+            
+            // Populate form with question data
             document.getElementById('newQuestionId').value = question.id;
             document.getElementById('newQuestionText').value = question.question_text;
-            document.getElementById('newQuestionInputType').value = question.input_type;
-            document.getElementById('newQuestionSection').value = question.section;
+            document.getElementById('newQuestionInputType').value = question.input_type || 'text';
+            document.getElementById('newQuestionSection').value = question.section || 'Other';
             document.getElementById('newQuestionDefault').value = question.default || '';
-            document.getElementById('newQuestionRequired').checked = question.required;
-            document.getElementById('newQuestionCalculated').checked = question.calculated;
+            document.getElementById('newQuestionRequired').checked = !!question.required;
+            document.getElementById('newQuestionCalculated').checked = !!question.calculated;
             document.getElementById('newQuestionDependentOn').value = question.dependent_on || '';
-            document.getElementById('newQuestionDependentValue').value = question.dependent_value || '';
-            document.getElementById('newQuestionOrder').value = question.order;
-            document.getElementById('newQuestionOptions').value = question.options ? question.options.join(', ') : '';
+            document.getElementById('newQuestionDependentValue').value = 
+                Array.isArray(question.dependent_value) 
+                    ? question.dependent_value.join(', ') 
+                    : (question.dependent_value || '');
+            document.getElementById('newQuestionOrder').value = question.order || 999;
+            
+            // Handle options for select inputs
+            if (question.options && Array.isArray(question.options)) {
+                document.getElementById('newQuestionOptions').value = question.options.join(', ');
+                document.getElementById('optionsField').style.display = 'block';
+            } else {
+                document.getElementById('newQuestionOptions').value = '';
+                document.getElementById('optionsField').style.display = 
+                    question.input_type === 'select' ? 'block' : 'none';
+            }
 
+            // Update UI
+            document.getElementById('addQuestionButton').textContent = 'Save Changes';
             toggleAddQuestionFormUI(true);
         }
     </script>
