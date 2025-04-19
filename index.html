@@ -132,10 +132,8 @@
                  </div>
 
                  <div class="question-form-field">
-                     <label class="label" style="display: inline-flex; align-items: center;">
-                         <input id="newQuestionRequired" type="checkbox" style="margin-right: 8px; transform: scale(1.1);">
-                         Required Field
-                     </label>
+                     <label class="label">Required Field</label>
+                     <input id="newQuestionRequired" type="checkbox" style="margin-right: 8px; transform: scale(1.1);">
                  </div>
 
                  <div class="question-form-field">
@@ -901,19 +899,21 @@ ${cssContent}
                 return;
             }
             
-            // Simple check for duplicate IDs
-            if (questions.some(q => q.id === id)) {
-                alert('A question with this ID already exists. Please use a unique ID.');
-                return;
-            }
+            // Create the question object
+            const questionData = { 
+                id, 
+                question_text: questionText, 
+                input_type: inputType, 
+                section, 
+                required, 
+                order 
+            };
 
-            const newQuestion = { id, question_text: questionText, input_type: inputType, section, required, order };
-
-            if (calculated) newQuestion.calculated = true;
-            if (defaultValue) newQuestion.default = defaultValue;
+            if (calculated) questionData.calculated = true;
+            if (defaultValue) questionData.default = defaultValue;
             if (dependentOn && dependentValue) {
-                newQuestion.dependent_on = dependentOn;
-                newQuestion.dependent_value = dependentValue;
+                questionData.dependent_on = dependentOn;
+                questionData.dependent_value = dependentValue;
             }
 
             if (inputType === 'select') {
@@ -922,13 +922,49 @@ ${cssContent}
                     alert('Please provide at least one option for the select field (comma-separated).');
                     return;
                 }
-                newQuestion.options = options;
+                questionData.options = options;
             }
 
-            questions.push(newQuestion);
-            console.log('Added new question:', newQuestion);
+            // Check if we're editing an existing question or adding a new one
+            if (editingQuestionId) {
+                // Editing existing question
+                const questionIndex = questions.findIndex(q => q.id === editingQuestionId);
+                if (questionIndex !== -1) {
+                    // If the ID has changed, make sure it's not a duplicate
+                    if (id !== editingQuestionId && questions.some(q => q.id === id)) {
+                        alert('A question with this ID already exists. Please use a unique ID.');
+                        return;
+                    }
+                    
+                    // Preserve any fields we want to keep from the original question
+                    const originalQuestion = questions[questionIndex];
+                    if (originalQuestion.dynamic_fields) {
+                        questionData.dynamic_fields = originalQuestion.dynamic_fields;
+                    }
+                    if (originalQuestion.is_post_group) {
+                        questionData.is_post_group = true;
+                        questionData.post_group_questions = originalQuestion.post_group_questions;
+                    }
+                    
+                    // Replace the question
+                    questions[questionIndex] = questionData;
+                    console.log('Updated question:', questionData);
+                }
+                // Reset editing state
+                editingQuestionId = null;
+            } else {
+                // Adding new question
+                // Check for duplicate IDs
+                if (questions.some(q => q.id === id)) {
+                    alert('A question with this ID already exists. Please use a unique ID.');
+                    return;
+                }
+                
+                questions.push(questionData);
+                console.log('Added new question:', questionData);
+            }
+            
             toggleAddQuestionFormUI(false);
-            initializeFormState();
             renderForm();
         }
 
