@@ -351,7 +351,89 @@ ${cssContent}
             console.log('Download initiated.');
         }
 
-        // Add all your other functions here
+        function renderForm() {
+            // Renders all form sections and questions dynamically
+            const formSections = document.getElementById('formSections');
+            formSections.innerHTML = '';
+            const { sections, sortedSectionNames } = getSections();
+            sortedSectionNames.forEach(sectionName => {
+                const sectionContainer = document.createElement('div');
+                sectionContainer.className = 'form-section';
+                const sectionTitle = document.createElement('h3');
+                sectionTitle.className = 'section-title';
+                sectionTitle.textContent = sectionName;
+                sectionContainer.appendChild(sectionTitle);
+                sections[sectionName].forEach(question => {
+                    if (!question.is_post_group) {
+                        const questionElem = renderQuestion(question);
+                        sectionContainer.appendChild(questionElem);
+                    } else {
+                        // Render post group
+                        sectionContainer.appendChild(renderPostGroup(question));
+                    }
+                });
+                formSections.appendChild(sectionContainer);
+            });
+            // Render dynamic fields if present
+            renderDynamicSection(formSections);
+        }
+
+        function renderQuestion(question) {
+            const wrapper = document.createElement('div');
+            wrapper.className = 'question-wrapper';
+            const label = createLabelElement(question);
+            const input = createInputElement(question);
+            wrapper.appendChild(label);
+            wrapper.appendChild(input);
+            return wrapper;
+        }
+
+        function renderPostGroup(question) {
+            const groupDiv = document.createElement('div');
+            groupDiv.className = 'post-group';
+            const groupTitle = document.createElement('div');
+            groupTitle.className = 'post-group-title';
+            groupTitle.textContent = question.question_text;
+            groupDiv.appendChild(groupTitle);
+            (question.post_group_questions || []).forEach(subQ => {
+                const subElem = renderQuestion(subQ);
+                subElem.classList.add('post-field-item');
+                groupDiv.appendChild(subElem);
+            });
+            return groupDiv;
+        }
+
+        function createInputElement(question) {
+            const input = document.createElement('input');
+            input.className = 'input-field';
+            input.type = question.input_type || 'text';
+            input.id = question.id;
+            input.value = answers[question.id] || '';
+            input.required = !!question.required;
+            input.disabled = !!question.calculated;
+            input.addEventListener('input', e => handleChange(question.id, e.target.value));
+            return input;
+        }
+
+        function createLabelElement(question) {
+            const label = document.createElement('label');
+            label.className = 'label';
+            label.htmlFor = question.id;
+            label.textContent = question.question_text;
+            if (question.required) {
+                const req = document.createElement('span');
+                req.className = 'required-indicator';
+                req.textContent = '*';
+                label.appendChild(req);
+            }
+            return label;
+        }
+
+        function renderDynamicSection(formSections) {
+            // Example: render dynamic fields for pulls, gates, etc.
+            // (You can expand this as needed for your use case)
+        }
+
         function initializeFormState() {
             console.log('Initializing form state...');
             answers = {};
@@ -395,10 +477,6 @@ ${cssContent}
             // Recalculate after defaults are set
             recalculateAndUpdateFields();
             console.log('Initial answers:', answers);
-        }
-
-        function renderForm() {
-            // Your existing renderForm function
         }
 
         function handleChange(id, value) {
