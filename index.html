@@ -625,7 +625,126 @@ ${cssContent}
             renderForm();
         }
 
-        // Include all other necessary functions
+        function updateDynamicFields(triggerQuestionId, count) {
+            const question = questions.find(q => q.id === triggerQuestionId);
+            if (!question || !question.dynamic_fields) return;
+            const config = question.dynamic_fields;
+
+            if (config.type === 'gate') {
+                dynamicFieldStructures[`${config.gate_type}Gates`] = generateGateFieldStructures(config, count);
+            } else {
+                dynamicFieldStructures.pulls = generatePullFieldStructures(config, count);
+            }
+            cleanupOrphanedAnswers(triggerQuestionId, count);
+        }
+
+        function generatePullFieldStructures(config, count) {
+            const newFields = [];
+            const template = config.template;
+            for (let i = 1; i <= count; i++) {
+                const nStr = i.toString();
+                newFields.push({
+                    id: template.id_template.replace('{n}', nStr),
+                    question_text: template.text_template.replace('{n}', nStr),
+                    input_type: template.input_type || 'number',
+                    required: template.required || false,
+                    placeholder: template.placeholder,
+                    is_dynamic_part: true,
+                    trigger_id: triggerIdFromConfig(config),
+                    order: i,
+                    style: template.style
+                });
+            }
+            console.log(`Generated ${newFields.length} pull field structures.`);
+            return newFields;
+        }
+
+        function generateGateFieldStructures(config, count) {
+            const newGateGroups = [];
+            const template = config.template;
+            const triggerId = triggerIdFromConfig(config);
+            for (let i = 1; i <= count; i++) {
+                const nStr = i.toString();
+                const currentGateFields = [];
+                (template.fields || []).forEach((fieldTmpl, index) => {
+                    currentGateFields.push({
+                        id: fieldTmpl.id_template.replace('{n}', nStr),
+                        question_text: fieldTmpl.text_template.replace('{n}', nStr),
+                        input_type: fieldTmpl.input_type || 'number',
+                        options: fieldTmpl.options, 
+                        default: fieldTmpl.default,
+                        required: fieldTmpl.required || false, 
+                        is_post_field: false,
+                        is_dynamic_part: true, 
+                        trigger_id: triggerId, 
+                        gate_number: i,
+                        order: fieldTmpl.order ?? index, 
+                        style: template.style
+                    });
+                });
+                (template.post_fields || []).forEach((fieldTmpl, index) => {
+                    currentGateFields.push({
+                        id: fieldTmpl.id_template.replace('{n}', nStr),
+                        question_text: fieldTmpl.text_template.replace('{n}', nStr),
+                        input_type: fieldTmpl.input_type || 'number',
+                        options: fieldTmpl.options, 
+                        default: fieldTmpl.default,
+                        required: fieldTmpl.required || false, 
+                        is_post_field: true,
+                        is_dynamic_part: true, 
+                        trigger_id: triggerId, 
+                        gate_number: i,
+                        order: fieldTmpl.order ?? (100 + index), 
+                        style: template.style
+                    });
+                });
+                // Sort fields within the gate group
+                currentGateFields.sort((a, b) => (a.order ?? 9999) - (b.order ?? 9999));
+                newGateGroups.push(currentGateFields);
+            }
+            console.log(`Generated ${newGateGroups.length} ${config.gate_type} gate groups structures.`);
+            return newGateGroups;
+        }
+
+        function cleanupOrphanedAnswers(triggerQuestionId, currentCount) {
+            // Determine prefix based on trigger ID (e.g., 'numberOfPulls' -> 'pull', 'numberOfSingleGates' -> 'singleGate')
+            let prefix = triggerQuestionId.replace('numberOf', '');
+            if (prefix.endsWith('s')) prefix = prefix.slice(0, -1); // Remove trailing 's'
+            prefix = prefix.charAt(0).toLowerCase() + prefix.slice(1); // Make first letter lowercase
+
+            // Regex needs to match the prefix, the number, and then the rest of the ID
+            const regex = new RegExp(`^${prefix}(\\d+)([A-Z].*|Length)$`);
+
+            Object.keys(answers).forEach(key => {
+                const match = key.match(regex);
+                if (match && match[1]) {
+                    const fieldNumber = parseInt(match[1], 10);
+                    if (fieldNumber > currentCount) {
+                        console.log(`Cleaning up orphaned answer: ${key}`);
+                        delete answers[key];
+                    }
+                }
+            });
+        }
+
+        function getAllQuestionsIncludingDynamic() {
+            const dynamicFields = [
+                ...dynamicFieldStructures.pulls, 
+                ...dynamicFieldStructures.singleGates.flat(),
+                ...dynamicFieldStructures.doubleGates.flat(), 
+                ...dynamicFieldStructures.slidingGates.flat()
+            ];
+            const postGroupSubQuestions = questions
+                .filter(q => q.is_post_group && q.post_group_questions)
+                .flatMap(q => q.post_group_questions);
+            
+            // Filter out group titles themselves from this flat list
+            return [...questions.filter(q => !q.is_post_group), ...postGroupSubQuestions, ...dynamicFields];
+        }
+
+        function triggerIdFromConfig(config) {
+            return config.trigger_id || config.container_id_prefix.replace('dynamic-', '');
+        }
     </script>
 </body>
 </html>
