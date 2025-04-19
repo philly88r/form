@@ -1,0 +1,21 @@
+{
+  "name": "chainlink-fence-calculator",
+  "version": "1.0.0",
+  "description": "A web-based calculator for estimating materials and costs for chainlink fence installations",
+  "main": "index.html",
+  "scripts": {
+    "start": "serve",
+    "build": "echo 'No build step required'"
+  },
+  "keywords": [
+    "fence",
+    "calculator",
+    "chainlink"
+  ],
+  "author": "",
+  "license": "MIT",
+  "devDependencies": {
+    "netlify-cli": "^20.0.2",
+    "serve": "^14.0.0"
+  }
+}
