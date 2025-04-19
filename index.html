@@ -576,6 +576,55 @@ ${cssContent}
             }
         }
 
+        function handleAddQuestion() {
+            const id = document.getElementById('newQuestionId').value.trim();
+            const questionText = document.getElementById('newQuestionText').value.trim();
+            const inputType = document.getElementById('newQuestionInputType').value;
+            const section = document.getElementById('newQuestionSection').value;
+            const defaultValue = document.getElementById('newQuestionDefault').value.trim();
+            const required = document.getElementById('newQuestionRequired').checked;
+            const calculated = document.getElementById('newQuestionCalculated').checked;
+            const order = parseInt(document.getElementById('newQuestionOrder').value, 10) || 999;
+            const optionsString = document.getElementById('newQuestionOptions').value.trim();
+            const dependentOn = document.getElementById('newQuestionDependentOn').value.trim();
+            const dependentValue = document.getElementById('newQuestionDependentValue').value.trim();
+
+            if (!id || !questionText) {
+                alert('Question ID and Question Text are required.');
+                return;
+            }
+            
+            // Simple check for duplicate IDs
+            if (questions.some(q => q.id === id)) {
+                alert('A question with this ID already exists. Please use a unique ID.');
+                return;
+            }
+
+            const newQuestion = { id, question_text: questionText, input_type: inputType, section, required, order };
+
+            if (calculated) newQuestion.calculated = true;
+            if (defaultValue) newQuestion.default = defaultValue;
+            if (dependentOn && dependentValue) {
+                newQuestion.dependent_on = dependentOn;
+                newQuestion.dependent_value = dependentValue;
+            }
+
+            if (inputType === 'select') {
+                const options = optionsString.split(',').map(opt => opt.trim()).filter(opt => opt !== '');
+                if (options.length === 0) {
+                    alert('Please provide at least one option for the select field (comma-separated).');
+                    return;
+                }
+                newQuestion.options = options;
+            }
+
+            questions.push(newQuestion);
+            console.log('Added new question:', newQuestion);
+            toggleAddQuestionFormUI(false);
+            initializeFormState();
+            renderForm();
+        }
+
         // Include all other necessary functions
     </script>
 </body>
