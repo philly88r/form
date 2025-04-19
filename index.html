@@ -213,8 +213,8 @@
             },
             {
                 id: 'fenceHeight',
-                question_text: 'Height of Fence (ft)',
-                input_type: 'number', // Changed to number
+                question_text: 'Height of Fence',
+                input_type: 'number',
                 default: '4',
                 required: true,
                 section: 'Basic Info',
@@ -242,7 +242,7 @@
             },
             {
                 id: 'meshGauge',
-                question_text: 'Mesh Gauge/Type',
+                question_text: 'Mesh Gauge/Type (Select based on Material)',
                 input_type: 'select',
                 options: ['Residential 11.5 gauge', 'Commercial 9 gauge', 'Residential 9 gauge', 'Commercial 8 gauge'],
                 default: 'Residential 11.5 gauge',
@@ -309,7 +309,7 @@
                             { id_template: 'doubleGate{n}Width', text_template: 'Width (ft)', input_type: 'number', required: true, order: 1 },
                             { id_template: 'doubleGate{n}Height', text_template: 'Height (ft)', input_type: 'number', required: true, order: 2 },
                             { id_template: 'doubleGate{n}FrameType', text_template: 'Frame Type', input_type: 'select', options: ['1 5/8', '2'], required: true, order: 3 },
-                            { id_template: 'doubleGate{n}LatchType', text_template: 'Latch Type', input_type: 'select', options: ['Fork', 'Fork Single', 'Industrial Swing'], required: true, order: 4 }
+                            { id_template: 'doubleGate{n}LatchType', text_template: 'Latch Type', input_type: 'select', options: ['Drop Rod', 'Cane Bolt'], required: true, order: 4 }
                         ],
                         post_fields: [
                             { id_template: 'doubleGate{n}PostDiameter', text_template: 'Post Diameter', input_type: 'select', options: ['2 3/8', '2 7/8', '4', '6 5/8'], required: true, order: 101 },
@@ -339,7 +339,7 @@
                             { id_template: 'slidingGate{n}Width', text_template: 'Width (ft)', input_type: 'number', required: true, order: 1 },
                             { id_template: 'slidingGate{n}Height', text_template: 'Height (ft)', input_type: 'number', required: true, order: 2 },
                             { id_template: 'slidingGate{n}FrameType', text_template: 'Frame Type', input_type: 'select', options: ['1 5/8', '2'], required: true, order: 3 },
-                            { id_template: 'slidingGate{n}TrackType', text_template: 'Track Type', input_type: 'select', options: ['V-Track', 'Cantilever'], required: true, order: 4 }
+                            { id_template: 'slidingGate{n}TrackType', text_template: 'Operator', input_type: 'select', options: ['Manual', 'Automatic'], required: true, order: 4 }
                         ],
                         post_fields: [
                             { id_template: 'slidingGate{n}PostDiameter', text_template: 'Post Diameter', input_type: 'select', options: ['2 3/8', '2 7/8', '4', '6 5/8'], required: true, order: 101 },
@@ -369,11 +369,11 @@
                 section: 'Posts',
                 order: 110,
                 post_group_questions: [
-                    { id: 'numTerminalPosts', question_text: 'Number of Posts', input_type: 'number', required: true, order: 1 },
-                    { id: 'terminalPostDiameter', question_text: 'Diameter', input_type: 'select', options: ['2 3/8', '2 7/8', '4', '6 5/8'], required: true, order: 2 },
-                    { id: 'terminalPostThickness', question_text: 'Thickness', input_type: 'select', options: ['SCH 40', 'Commercial SCH 40', 'Industrial SCH 40'], required: true, order: 3 },
-                    { id: 'terminalPostHoleDepth', question_text: 'Hole Depth (in)', input_type: 'number', required: true, order: 4 },
-                    { id: 'terminalPostHoleWidth', question_text: 'Hole Width (in)', input_type: 'number', required: true, order: 5 }
+                    { id: 'numTerminalPosts', question_text: 'Number of Terminal Posts', input_type: 'number', required: true, order: 1 },
+                    { id: 'terminalPostDiameter', question_text: 'Terminal Post Diameter', input_type: 'select', options: ['2 3/8', '2 7/8', '4', '6 5/8'], required: true, order: 2 },
+                    { id: 'terminalPostThickness', question_text: 'Terminal Post Thickness', input_type: 'select', options: ['SCH 40', 'Commercial SCH 40', 'Industrial SCH 40'], required: true, order: 3 },
+                    { id: 'terminalPostHoleDepth', question_text: 'Hole Depth (inches)', input_type: 'number', required: true, order: 4 },
+                    { id: 'terminalPostHoleWidth', question_text: 'Hole Width (inches)', input_type: 'number', required: true, order: 5 }
                 ]
             },
             { // Corner Posts Group
@@ -383,43 +383,43 @@
                 section: 'Posts',
                 order: 120,
                 post_group_questions: [
-                    { id: 'numCornerPosts', question_text: 'Number of Posts', input_type: 'number', required: true, order: 1 },
-                    { id: 'cornerPostDiameter', question_text: 'Diameter', input_type: 'select', options: ['2 3/8', '2 7/8', '4', '6 5/8'], required: true, order: 2 },
-                    { id: 'cornerPostThickness', question_text: 'Thickness', input_type: 'select', options: ['SCH 40', 'Commercial SCH 40', 'Industrial SCH 40'], required: true, order: 3 },
-                    { id: 'cornerPostHoleDepth', question_text: 'Hole Depth (in)', input_type: 'number', required: true, order: 4 },
-                    { id: 'cornerPostHoleWidth', question_text: 'Hole Width (in)', input_type: 'number', required: true, order: 5 }
+                    { id: 'numCornerPosts', question_text: 'Number of Corner Posts', input_type: 'number', required: true, order: 1 },
+                    { id: 'cornerPostDiameter', question_text: 'Corner Post Diameter', input_type: 'select', options: ['2 3/8', '2 7/8', '4', '6 5/8'], required: true, order: 2 },
+                    { id: 'cornerPostThickness', question_text: 'Corner Post Thickness', input_type: 'select', options: ['SCH 40', 'Commercial SCH 40', 'Industrial SCH 40'], required: true, order: 3 },
+                    { id: 'cornerPostHoleDepth', question_text: 'Hole Depth (inches)', input_type: 'number', required: true, order: 4 },
+                    { id: 'cornerPostHoleWidth', question_text: 'Hole Width (inches)', input_type: 'number', required: true, order: 5 }
                 ]
             },
             { // Flanged Posts Centered Group
                 id: 'flangedPostCenteredGroup',
-                question_text: 'Flanged Posts - Centered',
+                question_text: 'Flanged Posts Centered',
                 is_post_group: true,
                 section: 'Posts',
                 order: 130,
                 dependent_on: 'useFlangedPosts', // Dependency
                 dependent_value: 'Yes',         // Dependency
                 post_group_questions: [
-                    { id: 'numFlangedPostsCentered', question_text: 'Number of Posts', input_type: 'number', required: true, order: 1 },
-                    { id: 'flangedPostCenteredDiameter', question_text: 'Diameter', input_type: 'select', options: ['2 3/8', '2 7/8', '4', '6 5/8'], required: true, order: 2 },
-                    { id: 'flangedPostCenteredThickness', question_text: 'Thickness', input_type: 'select', options: ['SCH 40', 'Commercial SCH 40', 'Industrial SCH 40'], required: true, order: 3 },
-                    { id: 'flangedPostCenteredHoleDepth', question_text: 'Hole Depth (in)', input_type: 'number', required: true, order: 4 },
-                    { id: 'flangedPostCenteredHoleWidth', question_text: 'Hole Width (in)', input_type: 'number', required: true, order: 5 }
+                    { id: 'numFlangedPostsCentered', question_text: 'Number of Flanged Posts Centered', input_type: 'number', required: true, order: 1 },
+                    { id: 'flangedPostCenteredDiameter', question_text: 'Flanged Post Centered Diameter', input_type: 'select', options: ['2 3/8', '2 7/8', '4', '6 5/8'], required: true, order: 2 },
+                    { id: 'flangedPostCenteredThickness', question_text: 'Flanged Post Centered Thickness', input_type: 'select', options: ['SCH 40', 'Commercial SCH 40', 'Industrial SCH 40'], required: true, order: 3 },
+                    { id: 'flangedPostCenteredHoleDepth', question_text: 'Hole Depth (inches)', input_type: 'number', required: true, order: 4 },
+                    { id: 'flangedPostCenteredHoleWidth', question_text: 'Hole Width (inches)', input_type: 'number', required: true, order: 5 }
                 ]
             },
             { // Flanged Posts Off Centered Group
                 id: 'flangedPostOffCenteredGroup',
-                question_text: 'Flanged Posts - Off Centered',
+                question_text: 'Flanged Posts Off Centered',
                 is_post_group: true,
                 section: 'Posts',
                 order: 140,
                 dependent_on: 'useFlangedPosts', // Dependency
                 dependent_value: 'Yes',         // Dependency
                 post_group_questions: [
-                    { id: 'numFlangedPostsOffCentered', question_text: 'Number of Posts', input_type: 'number', required: true, order: 1 },
-                    { id: 'flangedPostOffCenteredDiameter', question_text: 'Diameter', input_type: 'select', options: ['2 3/8', '2 7/8', '4', '6 5/8'], required: true, order: 2 },
-                    { id: 'flangedPostOffCenteredThickness', question_text: 'Thickness', input_type: 'select', options: ['SCH 40', 'Commercial SCH 40', 'Industrial SCH 40'], required: true, order: 3 },
-                    { id: 'flangedPostOffCenteredHoleDepth', question_text: 'Hole Depth (in)', input_type: 'number', required: true, order: 4 },
-                    { id: 'flangedPostOffCenteredHoleWidth', question_text: 'Hole Width (in)', input_type: 'number', required: true, order: 5 }
+                    { id: 'numFlangedPostsOffCentered', question_text: 'Number of Flanged Posts Off Centered', input_type: 'number', required: true, order: 1 },
+                    { id: 'flangedPostOffCenteredDiameter', question_text: 'Flanged Post Off Centered Diameter', input_type: 'select', options: ['2 3/8', '2 7/8', '4', '6 5/8'], required: true, order: 2 },
+                    { id: 'flangedPostOffCenteredThickness', question_text: 'Flanged Post Off Centered Thickness', input_type: 'select', options: ['SCH 40', 'Commercial SCH 40', 'Industrial SCH 40'], required: true, order: 3 },
+                    { id: 'flangedPostOffCenteredHoleDepth', question_text: 'Hole Depth (inches)', input_type: 'number', required: true, order: 4 },
+                    { id: 'flangedPostOffCenteredHoleWidth', question_text: 'Hole Width (inches)', input_type: 'number', required: true, order: 5 }
                 ]
             },
             // --- Line Posts Section ---
@@ -439,99 +439,109 @@
                 section: 'Line Posts',
                 order: 310,
                 post_group_questions: [
-                    { id: 'numLinePosts', question_text: 'Number of Posts', input_type: 'number', required: true, calculated: true, order: 1 },
-                    { id: 'linePostDiameter', question_text: 'Diameter', input_type: 'select', options: ['1 5/8', '2', '2 3/8', '2 7/8'], required: true, order: 2 },
-                    { id: 'linePostThickness', question_text: 'Thickness', input_type: 'select', options: ['SCH 20', 'SCH 40', 'Commercial SCH 40'], required: true, order: 3 },
-                    { id: 'linePostHoleDepth', question_text: 'Hole Depth (in)', input_type: 'number', required: true, order: 4 },
-                    { id: 'linePostHoleWidth', question_text: 'Hole Width (in)', input_type: 'number', required: true, order: 5 }
+                    { id: 'numLinePosts', question_text: 'Number of Line Posts', input_type: 'number', required: true, calculated: true, order: 1 },
+                    { id: 'linePostDiameter', question_text: 'Line Post Diameter', input_type: 'select', options: ['1 5/8', '1 7/8', '2 3/8', '2 7/8'], required: true, order: 2 },
+                    { id: 'linePostThickness', question_text: 'Line Post Thickness', input_type: 'select', options: ['SCH 20', 'SCH 40', 'Commercial SCH 40'], required: true, order: 3 },
+                    { id: 'linePostHoleDepth', question_text: 'Hole Depth (inches)', input_type: 'number', required: true, order: 4 },
+                    { id: 'linePostHoleWidth', question_text: 'Hole Width (inches)', input_type: 'number', required: true, order: 5 }
                 ]
             },
             // --- Extra Options Section ---
             {
-                id: 'topRail',
-                question_text: 'Top Rail',
+                id: 'includeTopRail',
+                question_text: 'Include Top Rail?',
                 input_type: 'select',
-                options: ['1 5/8', '1 5/8 Heavy Wall'],
-                default: '1 5/8',
+                options: ['Yes', 'No'],
+                default: 'Yes',
                 required: true,
                 section: 'Extra Options',
                 order: 400
             },
             {
-                id: 'midRail',
-                question_text: 'Mid Rail',
+                id: 'includeMidRail',
+                question_text: 'Include Mid Rail?',
                 input_type: 'select',
-                options: ['None', '1 5/8', '1 5/8 Heavy Wall'],
-                default: 'None',
+                options: ['Yes', 'No'],
+                default: 'No',
                 required: true,
                 section: 'Extra Options',
                 order: 410
             },
             {
-                id: 'bottomRail',
-                question_text: 'Bottom Rail',
+                id: 'includeBottomRail',
+                question_text: 'Include Bottom Rail?',
                 input_type: 'select',
-                options: ['None', '1 5/8', '1 5/8 Heavy Wall'],
-                default: 'None',
+                options: ['Yes', 'No'],
+                default: 'No',
                 required: true,
                 section: 'Extra Options',
                 order: 420
             },
             {
-                id: 'barbedWire',
-                question_text: 'Barbed Wire',
+                id: 'includeBarbedWire',
+                question_text: 'Include Barbed Wire?',
                 input_type: 'select',
-                options: ['None', '3 Strand', '6 Strand'],
-                default: 'None',
+                options: ['Yes', 'No'],
+                default: 'No',
                 required: true,
                 section: 'Extra Options',
                 order: 430
             },
             {
-                id: 'barbedWireType',
-                question_text: 'Barbed Wire Type',
+                id: 'numBarbedWireStrands',
+                question_text: 'Number of Barbed Wire Strands',
                 input_type: 'select',
-                options: ['2pt Galv', '4pt Galv', '2pt Black', '4pt Black'],
-                default: '2pt Galv',
+                options: ['1', '2', '3'],
+                default: '3',
                 required: true,
                 section: 'Extra Options',
                 order: 440,
-                dependent_on: 'barbedWire',
-                dependent_value: ['3 Strand', '6 Strand']
+                dependent_on: 'includeBarbedWire',
+                dependent_value: 'Yes'
             },
             {
-                id: 'barbedWireArms',
-                question_text: 'Barbed Wire Arms',
+                id: 'includeTensionWire',
+                question_text: 'Include Tension Wire?',
                 input_type: 'select',
-                options: ['Straight', '45° In', '45° Out', 'Vertical'],
-                default: 'Straight',
+                options: ['Yes', 'No'],
+                default: 'Yes',
                 required: true,
                 section: 'Extra Options',
-                order: 450,
-                dependent_on: 'barbedWire',
-                dependent_value: ['3 Strand', '6 Strand']
+                order: 450
             },
             {
-                id: 'privacySlats',
-                question_text: 'Privacy Slats',
+                id: 'includePrivacySlats',
+                question_text: 'Include Privacy Slats?',
                 input_type: 'select',
-                options: ['None', 'PVC', 'Aluminum'],
-                default: 'None',
+                options: ['Yes', 'No'],
+                default: 'No',
                 required: true,
                 section: 'Extra Options',
                 order: 460
             },
             {
-                id: 'privacySlatsColor',
-                question_text: 'Privacy Slats Color',
+                id: 'privacySlatsType',
+                question_text: 'Privacy Slat Type',
                 input_type: 'select',
-                options: ['White', 'Green', 'Brown', 'Black', 'Beige', 'Gray', 'Redwood'],
-                default: 'Green',
+                options: ['Standard', 'Heavy Duty', 'Extra Heavy Duty'],
+                default: 'Standard',
                 required: true,
                 section: 'Extra Options',
                 order: 470,
-                dependent_on: 'privacySlats',
-                dependent_value: ['PVC', 'Aluminum']
+                dependent_on: 'includePrivacySlats',
+                dependent_value: 'Yes'
+            },
+            {
+                id: 'privacySlatsColor',
+                question_text: 'Privacy Slat Color',
+                input_type: 'select',
+                options: ['Black', 'Brown', 'Green', 'White', 'Beige'],
+                default: 'Black',
+                required: true,
+                section: 'Extra Options',
+                order: 480,
+                dependent_on: 'includePrivacySlats',
+                dependent_value: 'Yes'
             }
         ];
 
