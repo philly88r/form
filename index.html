@@ -78,9 +78,14 @@
 
         <div id="adminPanel" class="admin-controls-container" style="display: none;">
              <h3 class="admin-controls-title">Form Editor</h3>
-             <button id="toggleAddQuestionForm" class="admin-button primary">
-                 Add New Question
-             </button>
+             <div class="admin-buttons-row" style="display: flex; gap: 10px; margin-bottom: 15px;">
+                 <button id="toggleAddQuestionForm" class="admin-button primary">
+                     Add New Question
+                 </button>
+                 <button id="downloadHtmlButton" class="admin-button success">
+                     Download HTML File
+                 </button>
+             </div>
 
              <div id="addQuestionForm" class="add-question-form" style="display: none;">
                  <h4>Add New Question</h4>
@@ -563,6 +568,7 @@
             document.getElementById('newQuestionInputType').addEventListener('change', toggleOptionsField);
              document.getElementById('newQuestionCalculated').addEventListener('change', toggleCalculatedFieldOptions); // Add listener for calculated checkbox
             document.getElementById('fenceCalculatorForm').addEventListener('submit', handleFormSubmit);
+            document.getElementById('downloadHtmlButton').addEventListener('click', downloadHtmlFile); // Add event listener for download button
 
             initializeFormState();
             renderForm();
@@ -783,14 +789,14 @@
                 // Check if field should be visible and required
                 let isVisible = true;
                 if (q.dependent_on && q.dependent_value) {
-                    if (finalAnswers[q.dependent_on] !== q.dependent_value) {
+                    if (answers[q.dependent_on] !== q.dependent_value) {
                         isVisible = false;
                     }
                 }
                 // Check for post group visibility based on dependency
                 const parentGroup = questions.find(group => group.is_post_group && group.post_group_questions?.some(subQ => subQ.id === q.id));
                  if (parentGroup && parentGroup.dependent_on && parentGroup.dependent_value) {
-                     if (finalAnswers[parentGroup.dependent_on] !== parentGroup.dependent_value) {
+                     if (answers[parentGroup.dependent_on] !== parentGroup.dependent_value) {
                          isVisible = false;
                      }
                  }
@@ -1492,6 +1498,17 @@
             return triggerQuestion ? triggerQuestion.id : null;
          }
 
+        // --- NEW --- Download HTML file
+        function downloadHtmlFile() {
+            const html = document.documentElement.outerHTML;
+            const blob = new Blob([html], { type: 'text/html' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'fence-calculator.html';
+            a.click();
+            URL.revokeObjectURL(url);
+        }
     </script>
 </body>
 </html>
