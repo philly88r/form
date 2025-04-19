@@ -72,96 +72,93 @@
      <div class="form-container" id="fenceCalculator">
         <h2 class="form-title">Chainlink Fence Calculator</h2>
 
-        <button id="toggleEditorMode" class="admin-button" style="margin-bottom: 20px;">
-            Enter Editor Mode
-        </button>
-
-        <div id="adminPanel" class="admin-controls-container" style="display: none;">
-             <h3 class="admin-controls-title">Form Editor</h3>
-             <button id="toggleAddQuestionForm" class="admin-button primary">
-                 Add New Question
-             </button>
+        <!-- Admin Panel - always visible now -->
+        <div id="adminPanel" style="display: block;">
+            <h3 class="admin-controls-title">Form Editor</h3>
+            <button id="toggleAddQuestionForm" class="admin-button primary">
+                Add New Question
+            </button>
              
-             <!-- Add Download Button -->
-             <button id="downloadFormButton" class="admin-button" style="background-color: #3b82f6; margin-left: 10px;">
-                 Download Form HTML/CSS
-             </button>
+            <!-- Add Download Button -->
+            <button id="downloadFormButton" class="admin-button" style="background-color: #3b82f6; margin-left: 10px;">
+                Download Form HTML/CSS
+            </button>
 
-             <div id="addQuestionForm" class="add-question-form" style="display: none;">
-                 <h4>Add New Question</h4>
-                 <div id="editingPostGroupInfo" style="display: none; margin-bottom: 10px; padding: 5px; background-color: #f0f9ff; border-left: 3px solid #3b82f6; color: #1e40af;"></div>
-                 <div class="question-form-field">
-                     <label class="label">Question ID (unique identifier)<span class="required-indicator">*</span></label>
-                     <input id="newQuestionId" type="text" class="input-field" placeholder="E.g., fenceHeight">
-                 </div>
-
-                 <div class="question-form-field">
-                     <label class="label">Question Text<span class="required-indicator">*</span></label>
-                     <input id="newQuestionText" type="text" class="input-field" placeholder="E.g., What is the fence height?">
-                 </div>
-
-                 <div class="question-form-field">
-                     <label class="label">Input Type</label>
-                     <select id="newQuestionInputType" class="select-dropdown">
-                         <option value="text">Text</option>
-                         <option value="number">Number</option>
-                         <option value="select">Select (Dropdown)</option>
-                     </select>
-                 </div>
-
-                 <div id="optionsField" class="question-form-field" style="display: none;">
-                     <label class="label">Options (comma-separated)<span class="required-indicator">*</span></label>
-                     <input id="newQuestionOptions" type="text" class="input-field" placeholder="E.g., Option 1, Option 2, Option 3">
-                 </div>
-
-                 <div class="question-form-field">
-                     <label class="label">Section</label>
-                     <select id="newQuestionSection" class="select-dropdown">
-                         <!-- Dynamically populate sections later? Or keep static list -->
-                         <option value="Basic Info">Basic Info</option>
-                         <option value="Posts">Posts</option>
-                         <option value="Gates">Gates</option>
-                         <option value="Line Posts">Line Posts</option>
-                         <option value="Extra Options">Extra Options</option>
-                         <option value="Other">Other</option>
-                     </select>
-                 </div>
-
-                 <div class="question-form-field">
-                     <label class="label">Default Value (optional)</label>
-                     <input id="newQuestionDefault" type="text" class="input-field" placeholder="Default value (if any)">
-                 </div>
-
-                 <div class="question-form-field">
-                     <label class="label">Required Field</label>
-                     <input id="newQuestionRequired" type="checkbox" style="margin-right: 8px; transform: scale(1.1);">
-                 </div>
-
-                 <div class="question-form-field">
-                    <label class="label">
-                        <input id="newQuestionCalculated" type="checkbox" style="margin-right: 8px; transform: scale(1.1);">
-                        Calculated Field (Read-Only)
-                    </label>
-                </div>
-
-                 <div class="question-form-field">
-                    <label class="label">Dependency: Only show if Question ID</label>
-                    <input id="newQuestionDependentOn" type="text" class="input-field" placeholder="e.g., includeBarbedWire">
-                </div>
+            <div id="addQuestionForm" class="add-question-form" style="display: none;">
+                <h4>Add New Question</h4>
+                <div id="editingPostGroupInfo" style="display: none; margin-bottom: 10px; padding: 5px; background-color: #f0f9ff; border-left: 3px solid #3b82f6; color: #1e40af;"></div>
                 <div class="question-form-field">
-                    <label class="label">Has the value</label>
-                    <input id="newQuestionDependentValue" type="text" class="input-field" placeholder="e.g., Yes">
+                    <label class="label">Question ID (unique identifier)<span class="required-indicator">*</span></label>
+                    <input id="newQuestionId" type="text" class="input-field" placeholder="E.g., fenceHeight">
                 </div>
 
-                 <div class="question-form-field">
-                     <label class="label">Display Order</label>
-                     <input id="newQuestionOrder" type="number" value="999" class="input-field">
-                 </div>
+                <div class="question-form-field">
+                    <label class="label">Question Text<span class="required-indicator">*</span></label>
+                    <input id="newQuestionText" type="text" class="input-field" placeholder="E.g., What is the fence height?">
+                </div>
 
-                 <button id="addQuestionButton" class="admin-button success">
-                     Add Question
-                 </button>
-                  <button id="cancelAddQuestionButton" type="button" class="admin-button" style="background-color: #6b7280;">
+                <div class="question-form-field">
+                    <label class="label">Input Type</label>
+                    <select id="newQuestionInputType" class="select-dropdown">
+                        <option value="text">Text</option>
+                        <option value="number">Number</option>
+                        <option value="select">Select (Dropdown)</option>
+                    </select>
+                </div>
+
+                <div id="optionsField" class="question-form-field" style="display: none;">
+                    <label class="label">Options (comma-separated)<span class="required-indicator">*</span></label>
+                    <input id="newQuestionOptions" type="text" class="input-field" placeholder="E.g., Option 1, Option 2, Option 3">
+                </div>
+
+                <div class="question-form-field">
+                    <label class="label">Section</label>
+                    <select id="newQuestionSection" class="select-dropdown">
+                        <!-- Dynamically populate sections later? Or keep static list -->
+                        <option value="Basic Info">Basic Info</option>
+                        <option value="Posts">Posts</option>
+                        <option value="Gates">Gates</option>
+                        <option value="Line Posts">Line Posts</option>
+                        <option value="Extra Options">Extra Options</option>
+                        <option value="Other">Other</option>
+                    </select>
+                </div>
+
+                <div class="question-form-field">
+                    <label class="label">Default Value (optional)</label>
+                    <input id="newQuestionDefault" type="text" class="input-field" placeholder="Default value (if any)">
+                </div>
+
+                <div class="question-form-field">
+                    <label class="label">Required Field</label>
+                    <input id="newQuestionRequired" type="checkbox" style="margin-right: 8px; transform: scale(1.1);">
+                </div>
+
+                <div class="question-form-field">
+                   <label class="label">
+                       <input id="newQuestionCalculated" type="checkbox" style="margin-right: 8px; transform: scale(1.1);">
+                       Calculated Field (Read-Only)
+                   </label>
+               </div>
+
+                <div class="question-form-field">
+                   <label class="label">Dependency: Only show if Question ID</label>
+                   <input id="newQuestionDependentOn" type="text" class="input-field" placeholder="e.g., includeBarbedWire">
+               </div>
+               <div class="question-form-field">
+                   <label class="label">Has the value</label>
+                   <input id="newQuestionDependentValue" type="text" class="input-field" placeholder="e.g., Yes">
+               </div>
+
+                <div class="question-form-field">
+                    <label class="label">Display Order</label>
+                    <input id="newQuestionOrder" type="number" value="999" class="input-field">
+                </div>
+
+                <button id="addQuestionButton" class="admin-button success">
+                    Add Question
+                </button>
+                 <button id="cancelAddQuestionButton" type="button" class="admin-button" style="background-color: #6b7280;">
                      Cancel
                  </button>
              </div>
@@ -546,7 +543,7 @@
 
         // --- State Variables ---
         let questions = JSON.parse(JSON.stringify(initialChainlinkFenceQuestions));
-        let isAdminMode = false;
+        let isAdminMode = true; // Always in admin mode now
         let editingQuestionId = null;
         let showAddQuestionForm = false;
         let answers = {};
@@ -554,7 +551,6 @@
 
         // --- Initialization ---
         document.addEventListener('DOMContentLoaded', function() {
-            document.getElementById('toggleEditorMode').addEventListener('click', toggleEditorMode);
             document.getElementById('toggleAddQuestionForm').addEventListener('click', toggleAddQuestionFormUI);
             document.getElementById('addQuestionButton').addEventListener('click', handleAddQuestion);
             document.getElementById('cancelAddQuestionButton').addEventListener('click', () => toggleAddQuestionFormUI(false));
@@ -720,27 +716,6 @@
             // Process form submission
             console.log('Form submitted with answers:', answers);
             alert('Form submitted successfully! (This is a placeholder - implement your actual submission logic)');
-        }
-
-        function toggleEditorMode() {
-            console.log('Toggling editor mode, current state:', isAdminMode);
-            isAdminMode = !isAdminMode;
-            document.getElementById('adminPanel').style.display = isAdminMode ? 'block' : 'none';
-            document.getElementById('toggleEditorMode').textContent = isAdminMode ? 'Exit Editor Mode' : 'Enter Editor Mode';
-            
-            // Make sure questions array is properly initialized if it's empty
-            if (questions.length === 0) {
-                console.log('Questions array is empty, reinitializing from initial questions');
-                questions = JSON.parse(JSON.stringify(initialChainlinkFenceQuestions));
-            }
-            
-            if (!isAdminMode) {
-                toggleAddQuestionFormUI(false);
-                editingQuestionId = null;
-                document.getElementById('editingPostGroupInfo').style.display = 'none';
-            }
-            renderForm();
-            console.log('Editor mode toggled to:', isAdminMode);
         }
 
         function toggleAddQuestionFormUI(forceState = null) {
