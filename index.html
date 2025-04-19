@@ -542,7 +542,7 @@
         ];
 
         // --- State Variables ---
-        let questions = JSON.parse(JSON.stringify(initialChainlinkFenceQuestions));
+        let questions = [];
         let isAdminMode = true; // Always in admin mode now
         let editingQuestionId = null;
         let showAddQuestionForm = false;
@@ -551,6 +551,10 @@
 
         // --- Initialization ---
         document.addEventListener('DOMContentLoaded', function() {
+            // Initialize questions array from the initial configuration
+            questions = JSON.parse(JSON.stringify(initialChainlinkFenceQuestions));
+            console.log('Questions initialized with', questions.length, 'items');
+
             document.getElementById('toggleAddQuestionForm').addEventListener('click', toggleAddQuestionFormUI);
             document.getElementById('addQuestionButton').addEventListener('click', handleAddQuestion);
             document.getElementById('cancelAddQuestionButton').addEventListener('click', () => toggleAddQuestionFormUI(false));
@@ -558,6 +562,14 @@
             document.getElementById('newQuestionCalculated').addEventListener('change', toggleCalculatedFieldOptions);
             document.getElementById('fenceCalculatorForm').addEventListener('submit', handleFormSubmit);
             document.getElementById('downloadFormButton').addEventListener('click', downloadFormHtmlCss);
+
+            // Debug the questions array
+            console.log('Initial questions array:', questions);
+            if (!questions || questions.length === 0) {
+                console.warn('Questions array is empty or undefined on page load!');
+                questions = JSON.parse(JSON.stringify(initialChainlinkFenceQuestions));
+                console.log('Reinitialized questions array, new length:', questions.length);
+            }
 
             initializeFormState();
             renderForm();
@@ -887,7 +899,7 @@
             console.log('Rendering form with admin mode:', isAdminMode);
             console.log('Current questions array length:', questions.length);
             
-            if (questions.length === 0) {
+            if (!questions || questions.length === 0) {
                 console.warn('Warning: Questions array is empty during renderForm!');
                 questions = JSON.parse(JSON.stringify(initialChainlinkFenceQuestions));
                 console.log('Reinitialized questions array, new length:', questions.length);
@@ -898,6 +910,11 @@
             
             const { sections, sortedSectionNames } = getSections();
             console.log('Found sections:', sortedSectionNames);
+            
+            // Debug the sections
+            for (const sectionName of sortedSectionNames) {
+                console.log(`Section ${sectionName} has ${sections[sectionName].length} questions`);
+            }
             
             sortedSectionNames.forEach(sectionName => {
                 // Create section container
@@ -949,6 +966,15 @@
         }
 
         function getSections() {
+            console.log('Getting sections from questions array with length:', questions ? questions.length : 0);
+            
+            // Safety check - if questions is undefined or empty, reinitialize it
+            if (!questions || questions.length === 0) {
+                console.warn('Questions array is empty in getSections! Reinitializing...');
+                questions = JSON.parse(JSON.stringify(initialChainlinkFenceQuestions));
+                console.log('Reinitialized questions array, new length:', questions.length);
+            }
+            
             const sections = {};
             const sectionOrderMap = {}; // To store the first encountered order for a section
             const sectionNames = new Set(); // To get unique section names
