@@ -833,7 +833,14 @@ ${cssContent}
         }
 
         function toggleEditorMode() {
-            // Your existing toggleEditorMode function
+            isAdminMode = !isAdminMode;
+            document.getElementById('adminPanel').style.display = isAdminMode ? 'block' : 'none';
+            document.getElementById('toggleEditorMode').textContent = isAdminMode ? 'Exit Editor Mode' : 'Enter Editor Mode';
+            if (!isAdminMode) {
+                toggleAddQuestionFormUI(false);
+                editingQuestionId = null;
+            }
+            renderForm();
         }
 
         function toggleOptionsField() {
@@ -1009,7 +1016,7 @@ ${cssContent}
             return newGateGroups;
         }
 
-        function cleanupOrphanedAnswers(triggerQuestionId, currentCount) {
+        function cleanupOrphanedAnswers(triggerQuestionId, count) {
             // Determine prefix based on trigger ID (e.g., 'numberOfPulls' -> 'pull', 'numberOfSingleGates' -> 'singleGate')
             let prefix = triggerQuestionId.replace('numberOf', '');
             if (prefix.endsWith('s')) prefix = prefix.slice(0, -1); // Remove trailing 's'
@@ -1022,7 +1029,7 @@ ${cssContent}
                 const match = key.match(regex);
                 if (match && match[1]) {
                     const fieldNumber = parseInt(match[1], 10);
-                    if (fieldNumber > currentCount) {
+                    if (fieldNumber > count) {
                         console.log(`Cleaning up orphaned answer: ${key}`);
                         delete answers[key];
                     }
