@@ -534,11 +534,46 @@ ${cssContent}
         }
 
         function toggleOptionsField() {
-            // Your existing toggleOptionsField function
+            const inputType = document.getElementById('newQuestionInputType').value;
+            document.getElementById('optionsField').style.display = inputType === 'select' ? 'block' : 'none';
         }
 
         function toggleCalculatedFieldOptions() {
-            // Your existing toggleCalculatedFieldOptions function
+            const isCalculated = document.getElementById('newQuestionCalculated').checked;
+            // Hide dependency fields if calculated
+            document.getElementById('newQuestionDependentOn').parentElement.style.display = isCalculated ? 'none' : 'block';
+            document.getElementById('newQuestionDependentValue').parentElement.style.display = isCalculated ? 'none' : 'block';
+            // Maybe hide Default Value too?
+            document.getElementById('newQuestionDefault').parentElement.style.display = isCalculated ? 'none' : 'block';
+        }
+
+        function toggleAddQuestionFormUI(forceState = null) {
+            showAddQuestionForm = forceState !== null ? forceState : !showAddQuestionForm;
+            const addQuestionForm = document.getElementById('addQuestionForm');
+            const toggleButton = document.getElementById('toggleAddQuestionForm');
+
+            addQuestionForm.style.display = showAddQuestionForm ? 'block' : 'none';
+            toggleButton.textContent = showAddQuestionForm ? 'Cancel Adding Question' : 'Add New Question';
+            toggleButton.className = showAddQuestionForm ? 'admin-button danger' : 'admin-button primary';
+
+            if (showAddQuestionForm) {
+                addQuestionForm.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+            } else {
+                // Reset form fields
+                document.getElementById('newQuestionId').value = '';
+                document.getElementById('newQuestionText').value = '';
+                document.getElementById('newQuestionInputType').value = 'text';
+                document.getElementById('newQuestionSection').value = 'Basic Info';
+                document.getElementById('newQuestionDefault').value = '';
+                document.getElementById('newQuestionRequired').checked = false;
+                document.getElementById('newQuestionCalculated').checked = false;
+                document.getElementById('newQuestionDependentOn').value = '';
+                document.getElementById('newQuestionDependentValue').value = '';
+                document.getElementById('newQuestionOrder').value = '999';
+                document.getElementById('newQuestionOptions').value = '';
+                document.getElementById('optionsField').style.display = 'none';
+                toggleCalculatedFieldOptions(); // Reset calculated fields UI
+            }
         }
 
         // Include all other necessary functions
